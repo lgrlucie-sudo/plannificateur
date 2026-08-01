@@ -1143,6 +1143,12 @@ window.app = null;
         const categoryLabel = this.getRecipeCategoryLabel(recipe.category);
         const difficultyLabel = this.getDifficultyLabel(recipe.difficulty);
         
+        // Format months
+        const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
+        const monthsDisplay = recipe.months && recipe.months.length > 0 
+            ? recipe.months.map(m => monthNames[m]).join(', ')
+            : 'Toute l'année';
+        
         return `
             <div class="recipe-card" data-recipe-id="${recipe.id}">
                 <div class="recipe-icon">
@@ -1159,6 +1165,7 @@ window.app = null;
                         ${recipe.cookTime ? `<span class="recipe-time"><i class="fas fa-fire"></i> ${recipe.cookTime} min</span>` : ''}
                         <span class="recipe-difficulty ${recipe.difficulty}">${difficultyLabel}</span>
                         ${recipe.favorite ? `<span class="recipe-favorite"><i class="fas fa-star"></i></span>` : ''}
+                        <span class="recipe-months"><i class="fas fa-calendar"></i> ${monthsDisplay}</span>
                     </div>
                 </div>
                 <div class="recipe-actions">
@@ -1182,6 +1189,10 @@ window.app = null;
             .map(i => i.trim())
             .filter(i => i);
         
+        // Get selected months
+        const monthCheckboxes = document.querySelectorAll('input[name="recipe-month"]:checked');
+        const months = Array.from(monthCheckboxes).map(cb => parseInt(cb.value));
+        
         const recipe = {
             id: recipeId || Date.now().toString(),
             name: document.getElementById('recipe-name').value,
@@ -1192,7 +1203,8 @@ window.app = null;
             cookTime: document.getElementById('recipe-cook-time').value ? parseInt(document.getElementById('recipe-cook-time').value) : 0,
             difficulty: document.getElementById('recipe-difficulty').value,
             instructions: document.getElementById('recipe-instructions').value,
-            favorite: document.getElementById('recipe-favorite').checked
+            favorite: document.getElementById('recipe-favorite').checked,
+            months: months.length > 0 ? months : [0,1,2,3,4,5,6,7,8,9,10,11] // Tous les mois par défaut
         };
         
         if (!this.recipes) this.recipes = [];
@@ -1228,6 +1240,18 @@ window.app = null;
         document.getElementById('recipe-difficulty').value = recipe.difficulty || 'facile';
         document.getElementById('recipe-instructions').value = recipe.instructions || '';
         document.getElementById('recipe-favorite').checked = recipe.favorite || false;
+        
+        // Set months checkboxes
+        if (recipe.months && recipe.months.length > 0) {
+            document.querySelectorAll('input[name="recipe-month"]').forEach(cb => {
+                cb.checked = recipe.months.includes(parseInt(cb.value));
+            });
+        } else {
+            // Select all months by default
+            document.querySelectorAll('input[name="recipe-month"]').forEach(cb => {
+                cb.checked = true;
+            });
+        }
         
         this.openModal('add-recipe-modal');
     }
@@ -1282,4 +1306,8 @@ window.app = null;
             'difficile': 'Difficile'
         };
         return labels[difficulty] || difficulty;
+    }
+    
+    getMonthNames() {
+        return ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
     }

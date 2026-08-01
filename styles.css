@@ -1815,3 +1815,51 @@ body {
     color: #FFD700;
     font-size: 0.9rem;
 }
+
+/* ===== Month Checkboxes ===== */
+.month-checkboxes {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 8px;
+    margin-top: 5px;
+}
+
+.month-checkboxes label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 5px 8px;
+    background-color: var(--bg-secondary);
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
+}
+
+.month-checkboxes label:hover {
+    background-color: var(--bg-tertiary);
+}
+
+.month-checkboxes input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+/* ===== Recipe Months Display ===== */
+.recipe-months {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 2px 6px;
+    background-color: var(--bg-tertiary);
+    border-radius: var(--radius-sm);
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+}
+
+.recipe-months i {
+    font-size: 0.7rem;
+    color: var(--primary-color);
+}
