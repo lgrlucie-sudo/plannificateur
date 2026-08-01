@@ -1,1 +1,693 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plannificateur Maison - Organisation Familiale</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-home"></i>
+                    <h1>Plannificateur Maison</h1>
+                </div>
+                <div class="user-info">
+                    <span class="user-name">Lucie</span>
+                    <i class="fas fa-user-circle"></i>
+                </div>
+            </div>
+        </header>
 
+        <!-- Main Navigation -->
+        <nav class="main-nav">
+            <button class="nav-btn active" data-section="home">
+                <i class="fas fa-home"></i>
+                <span>Accueil</span>
+            </button>
+            <button class="nav-btn" data-section="tasks">
+                <i class="fas fa-tasks"></i>
+                <span>Tâches</span>
+            </button>
+            <button class="nav-btn" data-section="appointments">
+                <i class="fas fa-calendar-check"></i>
+                <span>Rendez-vous</span>
+            </button>
+            <button class="nav-btn" data-section="schedule">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Agenda</span>
+            </button>
+            <button class="nav-btn" data-section="menus">
+                <i class="fas fa-utensils"></i>
+                <span>Menus</span>
+            </button>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Home Section -->
+            <section id="home" class="section active">
+                <div class="section-header">
+                    <h2>Bienvenue sur votre Plannificateur Maison</h2>
+                    <p class="subtitle">Organisez facilement votre quotidien</p>
+                </div>
+                
+                <div class="home-grid">
+                    <div class="feature-card" data-section="tasks">
+                        <div class="card-icon tasks">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <h3>Gestion des Tâches</h3>
+                        <p>Organisez et suivez les tâches ménagères et autres activités quotidiennes.</p>
+                        <button class="btn-primary">Accéder aux tâches</button>
+                    </div>
+                    
+                    <div class="feature-card" data-section="appointments">
+                        <div class="card-icon appointments">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <h3>Rendez-vous</h3>
+                        <p>Gérez tous vos rendez-vous médicaux, professionnels ou personnels.</p>
+                        <button class="btn-primary">Voir les rendez-vous</button>
+                    </div>
+                    
+                    <div class="feature-card" data-section="schedule">
+                        <div class="card-icon schedule">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <h3>Agenda</h3>
+                        <p>Visualisez votre emploi du temps jour par jour avec une vue calendrier.</p>
+                        <button class="btn-primary">Ouvrir l'agenda</button>
+                    </div>
+                    
+                    <div class="feature-card" data-section="menus">
+                        <div class="card-icon menus">
+                            <i class="fas fa-utensils"></i>
+                        </div>
+                        <h3>Menus de la Semaine</h3>
+                        <p>Planifiez vos repas pour la semaine et générez des listes de courses.</p>
+                        <button class="btn-primary">Créer des menus</button>
+                    </div>
+                </div>
+
+                <div class="quick-stats">
+                    <div class="stat-card">
+                        <i class="fas fa-tasks"></i>
+                        <div class="stat-info">
+                            <span class="stat-value" id="task-count">0</span>
+                            <span class="stat-label">Tâches en cours</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-calendar-check"></i>
+                        <div class="stat-info">
+                            <span class="stat-value" id="appointment-count">0</span>
+                            <span class="stat-label">Rendez-vous aujourd'hui</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-utensils"></i>
+                        <div class="stat-info">
+                            <span class="stat-value" id="menu-count">0</span>
+                            <span class="stat-label">Menus planifiés</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tasks Section -->
+            <section id="tasks" class="section">
+                <div class="section-header">
+                    <h2>Gestion des Tâches</h2>
+                    <div class="header-actions">
+                        <button class="btn-secondary" id="filter-tasks">
+                            <i class="fas fa-filter"></i> Filtrer
+                        </button>
+                        <button class="btn-primary" id="add-task-btn">
+                            <i class="fas fa-plus"></i> Ajouter une tâche
+                        </button>
+                    </div>
+                </div>
+
+                <div class="task-categories">
+                    <button class="category-btn active" data-category="all">Toutes</button>
+                    <button class="category-btn" data-category="menage">Ménage</button>
+                    <button class="category-btn" data-category="courses">Courses</button>
+                    <button class="category-btn" data-category="jardin">Jardin</button>
+                    <button class="category-btn" data-category="autres">Autres</button>
+                </div>
+
+                <div class="tasks-container">
+                    <div class="task-list" id="task-list">
+                        <!-- Tasks will be dynamically added here -->
+                        <div class="empty-state">
+                            <i class="fas fa-clipboard-list"></i>
+                            <p>Aucune tâche pour le moment</p>
+                            <p class="subtitle">Ajoutez votre première tâche pour commencer</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Appointments Section -->
+            <section id="appointments" class="section">
+                <div class="section-header">
+                    <h2>Rendez-vous</h2>
+                    <div class="header-actions">
+                        <button class="btn-secondary" id="filter-appointments">
+                            <i class="fas fa-filter"></i> Filtrer
+                        </button>
+                        <button class="btn-primary" id="add-appointment-btn">
+                            <i class="fas fa-plus"></i> Ajouter un rendez-vous
+                        </button>
+                    </div>
+                </div>
+
+                <div class="appointment-types">
+                    <button class="type-btn active" data-type="all">Tous</button>
+                    <button class="type-btn" data-type="medical">Médical</button>
+                    <button class="type-btn" data-type="professional">Professionnel</button>
+                    <button class="type-btn" data-type="personal">Personnel</button>
+                </div>
+
+                <div class="appointments-container">
+                    <div class="appointment-list" id="appointment-list">
+                        <!-- Appointments will be dynamically added here -->
+                        <div class="empty-state">
+                            <i class="fas fa-calendar-plus"></i>
+                            <p>Aucun rendez-vous planifié</p>
+                            <p class="subtitle">Ajoutez votre premier rendez-vous</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Schedule Section -->
+            <section id="schedule" class="section">
+                <div class="section-header">
+                    <h2>Agenda</h2>
+                    <div class="header-actions">
+                        <button class="btn-secondary" id="today-btn">
+                            <i class="fas fa-calendar-day"></i> Aujourd'hui
+                        </button>
+                        <button class="btn-secondary" id="week-btn">
+                            <i class="fas fa-calendar-week"></i> Semaine
+                        </button>
+                        <button class="btn-secondary" id="month-btn">
+                            <i class="fas fa-calendar-alt"></i> Mois
+                        </button>
+                    </div>
+                </div>
+
+                <div class="calendar-container">
+                    <div class="calendar-header">
+                        <button class="nav-arrow" id="prev-month">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <h3 id="current-month">Janvier 2024</h3>
+                        <button class="nav-arrow" id="next-month">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="calendar-weekdays">
+                        <div>Lun</div>
+                        <div>Mar</div>
+                        <div>Mer</div>
+                        <div>Jeu</div>
+                        <div>Ven</div>
+                        <div>Sam</div>
+                        <div>Dim</div>
+                    </div>
+                    
+                    <div class="calendar-days" id="calendar-days">
+                        <!-- Days will be dynamically generated -->
+                    </div>
+                </div>
+
+                <div class="schedule-events">
+                    <h3>Événements du jour</h3>
+                    <div class="events-list" id="events-list">
+                        <!-- Events will be dynamically added -->
+                        <div class="empty-state small">
+                            <i class="fas fa-info-circle"></i>
+                            <p>Aucun événement pour cette date</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Menus Section -->
+            <section id="menus" class="section">
+                <div class="section-header">
+                    <h2>Menus de la Semaine</h2>
+                    <div class="header-actions">
+                        <button class="btn-secondary" id="import-recipes">
+                            <i class="fas fa-file-import"></i> Importer des recettes
+                        </button>
+                        <button class="btn-primary" id="add-menu-btn">
+                            <i class="fas fa-plus"></i> Ajouter un menu
+                        </button>
+                    </div>
+                </div>
+
+                <div class="week-selector">
+                    <button class="week-nav" id="prev-week">
+                        <i class="fas fa-chevron-left"></i> Semaine précédente
+                    </button>
+                    <span class="current-week" id="current-week">Semaine du 1er janvier 2024</span>
+                    <button class="week-nav" id="next-week">
+                        Semaine suivante <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+
+                <div class="menu-grid">
+                    <div class="menu-day">
+                        <div class="day-header">
+                            <span class="day-name">Lundi</span>
+                            <span class="day-date" id="monday-date">1er janvier</span>
+                        </div>
+                        <div class="meal-types">
+                            <div class="meal-type">
+                                <span class="meal-label">Petit-déjeuner</span>
+                                <div class="meal-content" data-day="monday" data-meal="breakfast">
+                                    <span class="meal-placeholder">Ajouter un repas</span>
+                                </div>
+                            </div>
+                            <div class="meal-type">
+                                <span class="meal-label">Déjeuner</span>
+                                <div class="meal-content" data-day="monday" data-meal="lunch">
+                                    <span class="meal-placeholder">Ajouter un repas</span>
+                                </div>
+                            </div>
+                            <div class="meal-type">
+                                <span class="meal-label">Dîner</span>
+                                <div class="meal-content" data-day="monday" data-meal="dinner">
+                                    <span class="meal-placeholder">Ajouter un repas</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="menu-day">
+                        <div class="day-header">
+                            <span class="day-name">Mardi</span>
+                            <span class="day-date" id="tuesday-date">2 janvier</span>
+                        </div>
+                        <div class="meal-types">
+                            <div class="meal-type">
+                                <span class="meal-label">Petit-déjeuner</span>
+                                <div class="meal-content" data-day="tuesday" data-meal="breakfast">
+                                    <span class="meal-placeholder">Ajouter un repas</span>
+                                </div>
+                            </div>
+                            <div class="meal-type">
+                                <span class="meal-label">Déjeuner</span>
+                                <div class="meal-content" data-day="tuesday" data-meal="lunch">
+                                    <span class="meal-placeholder">Ajouter un repas</span>
+                                </div>
+                            </div>
+                            <div class="meal-type">
+                                <span class="meal-label">Dîner</span>
+                                <div class="meal-content" data-day="tuesday" data-meal="dinner">
+                                    <span class="meal-placeholder">Ajouter un repas</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="menu-day">
+                        <div class="day-header">
+                            <span class="day-name">Mercredi</span>
+                            <span class="day-date" id="wednesday-date">3 janvier</span>
+                        </div>
+                        <div class="meal-types">
+                            <div class="meal-type">
+                                <span class="meal-label">Petit-déjeuner</span>
+                                <div class="meal-content" data-day="wednesday" data-meal="breakfast">
+                                    <span class="meal-placeholder">Ajouter un repas</span>
+                                </div>
+                            </div>
+                            <div class="meal-type">
+                                <span class="meal-label">Déjeuner</span>
+                                <div class="meal-content" data-day="wednesday" data-meal="lunch">
+                                    <span class="meal-placeholder">Ajouter un repas</span>
+                                </div>
+                            </div>
+                            <div class="meal-type">
+                                <span class="meal-label">Dîner</span>
+                                <div class="meal-content" data-day="wednesday" data-meal="dinner">
+                                    <span class="meal-placeholder">Ajouter un repas</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="menu-day">
+                        <div class="day-header">
+                            <span class="day-name">Jeudi</span>
+                            <span class="day-date" id="thursday-date">4 janvier</span>
+                        </div>
+                        <div class="meal-types">
+                            <div class="meal-type">
+                                <span class="meal-label">Petit-déjeuner</span>
+                                <div class="meal-content" data-day="thursday" data-meal="breakfast">
+                                    <span class="meal-placeholder">Ajouter un repas</span>
+                                </div>
+                            </div>
+                            <div class="meal-type">
+                                <span class="meal-label">Déjeuner</span>
+                                <div class="meal-content" data-day="thursday" data-meal="lunch">
+                                    <span class="meal-placeholder">Ajouter un repas</span>
+                                </div>
+                            </div>
+                            <div class="meal-type">
+                                <span class="meal-label">Dîner</span>
+                                <div class="meal-content" data-day="thursday" data-meal="dinner">
+                                    <span class="meal-placeholder">Ajouter un repas</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="menu-day">
+                        <div class="day-header">
+                            <span class="day-name">Vendredi</span>
+                            <span class="day-date" id="friday-date">5 janvier</span>
+                        </div>
+                        <div class="meal-types">
+                            <div class="meal-type">
+                                <span class="meal-label">Petit-déjeuner</span>
+                                <div class="meal-content" data-day="friday" data-meal="breakfast">
+                                    <span class="meal-placeholder">Ajouter un repas</span>
+                                </div>
+                            </div>
+                            <div class="meal-type">
+                                <span class="meal-label">Déjeuner</span>
+                                <div class="meal-content" data-day="friday" data-meal="lunch">
+                                    <span class="meal-placeholder">Ajouter un repas</span>
+                                </div>
+                            </div>
+                            <div class="meal-type">
+                                <span class="meal-label">Dîner</span>
+                                <div class="meal-content" data-day="friday" data-meal="dinner">
+                                    <span class="meal-placeholder">Ajouter un repas</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="menu-day">
+                        <div class="day-header">
+                            <span class="day-name">Samedi</span>
+                            <span class="day-date" id="saturday-date">6 janvier</span>
+                        </div>
+                        <div class="meal-types">
+                            <div class="meal-type">
+                                <span class="meal-label">Petit-déjeuner</span>
+                                <div class="meal-content" data-day="saturday" data-meal="breakfast">
+                                    <span class="meal-placeholder">Ajouter un repas</span>
+                                </div>
+                            </div>
+                            <div class="meal-type">
+                                <span class="meal-label">Déjeuner</span>
+                                <div class="meal-content" data-day="saturday" data-meal="lunch">
+                                    <span class="meal-placeholder">Ajouter un repas</span>
+                                </div>
+                            </div>
+                            <div class="meal-type">
+                                <span class="meal-label">Dîner</span>
+                                <div class="meal-content" data-day="saturday" data-meal="dinner">
+                                    <span class="meal-placeholder">Ajouter un repas</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="menu-day">
+                        <div class="day-header">
+                            <span class="day-name">Dimanche</span>
+                            <span class="day-date" id="sunday-date">7 janvier</span>
+                        </div>
+                        <div class="meal-types">
+                            <div class="meal-type">
+                                <span class="meal-label">Petit-déjeuner</span>
+                                <div class="meal-content" data-day="sunday" data-meal="breakfast">
+                                    <span class="meal-placeholder">Ajouter un repas</span>
+                                </div>
+                            </div>
+                            <div class="meal-type">
+                                <span class="meal-label">Déjeuner</span>
+                                <div class="meal-content" data-day="sunday" data-meal="lunch">
+                                    <span class="meal-placeholder">Ajouter un repas</span>
+                                </div>
+                            </div>
+                            <div class="meal-type">
+                                <span class="meal-label">Dîner</span>
+                                <div class="meal-content" data-day="sunday" data-meal="dinner">
+                                    <span class="meal-placeholder">Ajouter un repas</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="shopping-list-section">
+                    <h3>Liste de courses générée</h3>
+                    <div class="shopping-list" id="shopping-list">
+                        <div class="empty-state small">
+                            <i class="fas fa-shopping-basket"></i>
+                            <p>Aucun ingrédient dans la liste de courses</p>
+                        </div>
+                    </div>
+                    <button class="btn-secondary" id="clear-shopping-list">
+                        <i class="fas fa-trash"></i> Vider la liste
+                    </button>
+                </div>
+            </section>
+        </main>
+
+        <!-- Modals -->
+        <div class="modal-overlay" id="modal-overlay">
+            <!-- Add Task Modal -->
+            <div class="modal" id="add-task-modal">
+                <div class="modal-header">
+                    <h3>Ajouter une nouvelle tâche</h3>
+                    <button class="close-modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="task-form">
+                        <div class="form-group">
+                            <label for="task-title">Titre de la tâche</label>
+                            <input type="text" id="task-title" placeholder="Ex: Faire le ménage" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="task-description">Description</label>
+                            <textarea id="task-description" placeholder="Décrivez la tâche..." rows="3"></textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="task-category">Catégorie</label>
+                                <select id="task-category">
+                                    <option value="menage">Ménage</option>
+                                    <option value="courses">Courses</option>
+                                    <option value="jardin">Jardin</option>
+                                    <option value="autres">Autres</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="task-priority">Priorité</label>
+                                <select id="task-priority">
+                                    <option value="low">Basse</option>
+                                    <option value="medium">Moyenne</option>
+                                    <option value="high">Haute</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="task-due-date">Date limite</label>
+                                <input type="date" id="task-due-date">
+                            </div>
+                            <div class="form-group">
+                                <label for="task-assigned">Assigné à</label>
+                                <select id="task-assigned">
+                                    <option value="lucie">Lucie</option>
+                                    <option value="autre">Autre membre</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group checkbox-group">
+                            <label>
+                                <input type="checkbox" id="task-recurring">
+                                <span>Tâche récurrente</span>
+                            </label>
+                            <div id="recurring-options" style="display: none; margin-top: 10px;">
+                                <select id="recurring-frequency">
+                                    <option value="daily">Quotidienne</option>
+                                    <option value="weekly">Hebdomadaire</option>
+                                    <option value="monthly">Mensuelle</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" type="button" id="cancel-task">Annuler</button>
+                    <button class="btn-primary" type="submit" form="task-form">Enregistrer</button>
+                </div>
+            </div>
+
+            <!-- Add Appointment Modal -->
+            <div class="modal" id="add-appointment-modal">
+                <div class="modal-header">
+                    <h3>Ajouter un rendez-vous</h3>
+                    <button class="close-modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="appointment-form">
+                        <div class="form-group">
+                            <label for="appointment-title">Titre</label>
+                            <input type="text" id="appointment-title" placeholder="Ex: Rendez-vous chez le médecin" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="appointment-description">Description</label>
+                            <textarea id="appointment-description" placeholder="Détails du rendez-vous..." rows="3"></textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="appointment-date">Date</label>
+                                <input type="date" id="appointment-date" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="appointment-time">Heure</label>
+                                <input type="time" id="appointment-time" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="appointment-type">Type</label>
+                                <select id="appointment-type">
+                                    <option value="medical">Médical</option>
+                                    <option value="professional">Professionnel</option>
+                                    <option value="personal">Personnel</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="appointment-location">Lieu</label>
+                                <input type="text" id="appointment-location" placeholder="Ex: Hôpital Saint-Louis">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="appointment-reminder">Rappel</label>
+                            <select id="appointment-reminder">
+                                <option value="none">Aucun</option>
+                                <option value="15min">15 minutes avant</option>
+                                <option value="1hour">1 heure avant</option>
+                                <option value="1day">1 jour avant</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" type="button" id="cancel-appointment">Annuler</button>
+                    <button class="btn-primary" type="submit" form="appointment-form">Enregistrer</button>
+                </div>
+            </div>
+
+            <!-- Add Menu Modal -->
+            <div class="modal" id="add-menu-modal">
+                <div class="modal-header">
+                    <h3>Ajouter un repas</h3>
+                    <button class="close-modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="menu-form">
+                        <input type="hidden" id="menu-day">
+                        <input type="hidden" id="menu-meal-type">
+                        
+                        <div class="form-group">
+                            <label for="menu-recipe">Recette</label>
+                            <input type="text" id="menu-recipe" placeholder="Ex: Poulet rôti avec légumes" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="menu-ingredients">Ingrédients (séparés par des virgules)</label>
+                            <textarea id="menu-ingredients" placeholder="Ex: Poulet, pommes de terre, carottes, oignons" rows="3"></textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="menu-servings">Nombre de portions</label>
+                                <input type="number" id="menu-servings" min="1" value="4">
+                            </div>
+                            <div class="form-group">
+                                <label for="menu-prep-time">Temps de préparation (min)</label>
+                                <input type="number" id="menu-prep-time" min="0" value="30">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="menu-notes">Notes</label>
+                            <textarea id="menu-notes" placeholder="Remarques ou instructions spéciales..." rows="2"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" type="button" id="cancel-menu">Annuler</button>
+                    <button class="btn-primary" type="submit" form="menu-form">Enregistrer</button>
+                </div>
+            </div>
+
+            <!-- Filter Modal (reused for different sections) -->
+            <div class="modal" id="filter-modal">
+                <div class="modal-header">
+                    <h3 id="filter-title">Filtrer les tâches</h3>
+                    <button class="close-modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="filter-form">
+                        <div class="form-group">
+                            <label>Statut</label>
+                            <div class="checkbox-group">
+                                <label><input type="checkbox" name="status" value="todo" checked> À faire</label>
+                                <label><input type="checkbox" name="status" value="in-progress" checked> En cours</label>
+                                <label><input type="checkbox" name="status" value="done" checked> Terminée</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Priorité</label>
+                            <div class="checkbox-group">
+                                <label><input type="checkbox" name="priority" value="high" checked> Haute</label>
+                                <label><input type="checkbox" name="priority" value="medium" checked> Moyenne</label>
+                                <label><input type="checkbox" name="priority" value="low" checked> Basse</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="filter-due-date">Date limite</label>
+                            <select id="filter-due-date">
+                                <option value="all">Toutes les dates</option>
+                                <option value="today">Aujourd'hui</option>
+                                <option value="week">Cette semaine</option>
+                                <option value="overdue">En retard</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" type="button" id="reset-filters">Réinitialiser</button>
+                    <button class="btn-primary" type="submit" form="filter-form">Appliquer</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>© 2024 Plannificateur Maison - Créé avec ❤️ pour une organisation simplifiée</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
