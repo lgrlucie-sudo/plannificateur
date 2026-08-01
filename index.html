@@ -103,7 +103,7 @@
                         </div>
                         <h3>Administration</h3>
                         <p>Gérez les membres de la maison, les magasins et les repas préenregistrés.</p>
-                        <button class="btn-primary" disabled>Accéder à l'admin (bientôt)</button>
+                        <button class="btn-primary">Accéder à l'admin</button>
                     </div>
                 </div>
 
@@ -136,6 +136,81 @@
                     <p>Les fonctionnalités seront implémentées progressivement</p>
                 </div>
             </section>
+
+            <!-- Admin Section -->
+            <section id="admin" class="section">
+                <div class="section-header">
+                    <h2>Administration</h2>
+                    <p class="subtitle">Gérez les membres, les magasins et les repas</p>
+                </div>
+
+                <!-- Admin Tabs -->
+                <div class="admin-tabs">
+                    <button class="admin-tab-btn active" data-tab="members">
+                        <i class="fas fa-users"></i>
+                        <span>Membres du foyer</span>
+                    </button>
+                    <button class="admin-tab-btn" data-tab="stores">
+                        <i class="fas fa-store"></i>
+                        <span>Magasins</span>
+                    </button>
+                    <button class="admin-tab-btn" data-tab="meals">
+                        <i class="fas fa-utensils"></i>
+                        <span>Repas</span>
+                    </button>
+                </div>
+
+                <!-- Tab Content -->
+                <div class="admin-tab-content">
+                    <!-- Members Tab -->
+                    <div id="members" class="admin-tab-pane active">
+                        <div class="admin-panel">
+                            <div class="panel-header">
+                                <h3>Membres du foyer</h3>
+                                <button class="btn-primary" id="addMemberBtn">
+                                    <i class="fas fa-plus"></i>
+                                    Ajouter un membre
+                                </button>
+                            </div>
+                            <div class="members-list" id="membersList">
+                                <!-- Members will be added here dynamically -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stores Tab -->
+                    <div id="stores" class="admin-tab-pane">
+                        <div class="admin-panel">
+                            <div class="panel-header">
+                                <h3>Magasins</h3>
+                                <button class="btn-primary" id="addStoreBtn">
+                                    <i class="fas fa-plus"></i>
+                                    Ajouter un magasin
+                                </button>
+                            </div>
+                            <div class="stores-list" id="storesList">
+                                <!-- Stores will be added here dynamically -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Meals Tab -->
+                    <div id="meals" class="admin-tab-pane">
+                        <div class="admin-panel">
+                            <div class="panel-header">
+                                <h3>Repas</h3>
+                                <button class="btn-primary" id="addMealBtn">
+                                    <i class="fas fa-plus"></i>
+                                    Ajouter un repas
+                                </button>
+                            </div>
+                            <div class="meals-list" id="mealsList">
+                                <!-- Meals will be added here dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </main>
 
         <!-- Footer -->
@@ -145,5 +220,115 @@
     </div>
 
     <script src="app.js"></script>
+
+    <!-- Member Form Overlay -->
+    <div id="memberFormOverlay" class="form-overlay">
+        <div class="form-modal">
+            <div class="form-header">
+                <h3 id="memberFormTitle">Ajouter un membre</h3>
+                <button class="form-close"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="form-body">
+                <div class="form-group">
+                    <label for="memberName">Prénom *</label>
+                    <input type="text" id="memberName" placeholder="Entrez le prénom">
+                </div>
+                <div class="form-group">
+                    <label for="memberAge">Âge</label>
+                    <input type="number" id="memberAge" placeholder="Âge en années" min="0" max="120">
+                </div>
+                <div class="form-group">
+                    <label for="memberFatigue">Niveau de fatigue (1-5) *</label>
+                    <select id="memberFatigue">
+                        <option value="1">1 - Très reposé</option>
+                        <option value="2">2 - Reposé</option>
+                        <option value="3">3 - Normal</option>
+                        <option value="4">4 - Fatigué</option>
+                        <option value="5">5 - Très fatigué</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="memberStress">Niveau de stress (1-5) *</label>
+                    <select id="memberStress">
+                        <option value="1">1 - Très détendu</option>
+                        <option value="2">2 - Détendu</option>
+                        <option value="3">3 - Normal</option>
+                        <option value="4">4 - Stressé</option>
+                        <option value="5">5 - Très stressé</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="btn-secondary" onclick="app.closeAllForms()">Annuler</button>
+                <button class="btn-primary" onclick="app.saveMember()">
+                    <i class="fas fa-save"></i> Enregistrer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Store Form Overlay -->
+    <div id="storeFormOverlay" class="form-overlay">
+        <div class="form-modal">
+            <div class="form-header">
+                <h3 id="storeFormTitle">Ajouter un magasin</h3>
+                <button class="form-close"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="form-body">
+                <div class="form-group">
+                    <label for="storeName">Nom du magasin *</label>
+                    <input type="text" id="storeName" placeholder="Entrez le nom du magasin">
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="btn-secondary" onclick="app.closeAllForms()">Annuler</button>
+                <button class="btn-primary" onclick="app.saveStore()">
+                    <i class="fas fa-save"></i> Enregistrer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Meal Form Overlay -->
+    <div id="mealFormOverlay" class="form-overlay">
+        <div class="form-modal">
+            <div class="form-header">
+                <h3 id="mealFormTitle">Ajouter un repas</h3>
+                <button class="form-close"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="form-body">
+                <div class="form-group">
+                    <label for="mealTitle">Titre *</label>
+                    <input type="text" id="mealTitle" placeholder="Entrez le titre du repas">
+                </div>
+                <div class="form-group">
+                    <label for="mealPrepTime">Durée de préparation</label>
+                    <input type="text" id="mealPrepTime" placeholder="Ex: 30 minutes, 1 heure">
+                </div>
+                <div class="form-group">
+                    <label for="mealServings">Nombre de personnes *</label>
+                    <input type="number" id="mealServings" placeholder="Nombre de portions" min="1" value="1">
+                </div>
+                <div class="form-group">
+                    <label>Mois disponibles</label>
+                    <div id="mealMonths"></div>
+                </div>
+                <div class="form-group">
+                    <label for="mealIngredients">Ingrédients * (un par ligne)</label>
+                    <textarea id="mealIngredients" placeholder="Ex:&#10;200g de farine&#10;3 œufs&#10;100g de sucre"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="mealSteps">Étapes de la recette * (une par ligne)</label>
+                    <textarea id="mealSteps" placeholder="Ex:&#10;1. Mélanger la farine et le sucre&#10;2. Ajouter les œufs&#10;3. Cuire à 180°C pendant 20 minutes"></textarea>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="btn-secondary" onclick="app.closeAllForms()">Annuler</button>
+                <button class="btn-primary" onclick="app.saveMeal()">
+                    <i class="fas fa-save"></i> Enregistrer
+                </button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
