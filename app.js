@@ -14,6 +14,10 @@ class PlannificateurMaison {
         this.currentEditIndex = null;
         this.currentEditType = null;
         
+        // Days of week
+        this.daysOfWeek = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+        this.statusOptions = ['Sur site', 'Télétravail', "À l'école", 'En congés'];
+        
         this.init();
     }
     
@@ -78,6 +82,11 @@ class PlannificateurMaison {
                 }
             });
         });
+        
+        // Birthday date change - auto calculate age
+        document.getElementById('memberBirthday')?.addEventListener('change', (e) => {
+            this.calculateAgeFromBirthday(e.target.value);
+        });
     }
     
     showSection(section) {
@@ -117,9 +126,35 @@ class PlannificateurMaison {
         });
     }
     
+    // ===== Utility Functions =====
+    calculateAgeFromBirthday(birthday) {
+        if (!birthday) {
+            document.getElementById('memberAge').value = '';
+            return 0;
+        }
+        
+        const birthDate = new Date(birthday);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        
+        document.getElementById('memberAge').value = age;
+        return age;
+    }
+    
+    getDayStatus(member, dayIndex) {
+        if (member.schedule && member.schedule[dayIndex]) {
+            return member.schedule[dayIndex];
+        }
+        return 'Sur site'; // Default
+    }
+    
     // ===== Members Management =====
     openMemberForm(member = null, index = null) {
-        const form = document.getElementById('memberForm');
         const overlay = document.getElementById('memberFormOverlay');
         
         if (member) {
@@ -128,26 +163,57 @@ class PlannificateurMaison {
             this.currentEditType = 'member';
             document.getElementById('memberFormTitle').textContent = 'Modifier le membre';
             document.getElementById('memberName').value = member.name || '';
-            document.getElementById('memberAge').value = member.age || '';
+            document.getElementById('memberBirthday').value = member.birthday || '';
+            this.calculateAgeFromBirthday(member.birthday || '');
             document.getElementById('memberFatigue').value = member.fatigue || 1;
             document.getElementById('memberStress').value = member.stress || 1;
+            
+            // Set schedule
+            this.renderScheduleInputs(member.schedule || {});
         } else {
             // Add mode
             this.currentEditIndex = null;
             this.currentEditType = null;
             document.getElementById('memberFormTitle').textContent = 'Ajouter un membre';
             document.getElementById('memberName').value = '';
+            document.getElementById('memberBirthday').value = '';
             document.getElementById('memberAge').value = '';
             document.getElementById('memberFatigue').value = 1;
             document.getElementById('memberStress').value = 1;
+            
+            // Set default schedule
+            const defaultSchedule = {};
+            this.daysOfWeek.forEach((day, idx) => {
+                defaultSchedule[idx] = 'Sur site';
+            });
+            this.renderScheduleInputs(defaultSchedule);
         }
         
         overlay.classList.add('active');
     }
     
+    renderScheduleInputs(schedule) {
+        const container = document.getElementById('memberSchedule');
+        container.innerHTML = '';
+        
+        this.daysOfWeek.forEach((day, index) => {
+            const row = document.createElement('div');
+            row.className = 'schedule-row';
+            row.innerHTML = `
+                <span class="day-label">${day}</span>
+                <select class="status-select" data-day="${index}">
+                    ${this.statusOptions.map(opt => `
+                        <option value="${opt}" ${schedule[index] === opt ? 'selected' : ''}>${opt}</option>
+                    `).join('')}
+                </select>
+            `;
+            container.appendChild(row);
+        });
+    }
+    
     saveMember() {
         const name = document.getElementById('memberName').value.trim();
-        const age = parseInt(document.getElementById('memberAge').value) || 0;
+        const birthday = document.getElementById('memberBirthday').value;
         const fatigue = parseInt(document.getElementById('memberFatigue').value) || 1;
         const stress = parseInt(document.getElementById('memberStress').value) || 1;
         
@@ -156,7 +222,17 @@ class PlannificateurMaison {
             return;
         }
         
-        const member = { name, age, fatigue, stress };
+        // Get schedule
+        const schedule = {};
+        document.querySelectorAll('#memberSchedule .status-select').forEach(select => {
+            const dayIndex = parseInt(select.dataset.day);
+            schedule[dayIndex] = select.value;
+        });
+        
+        // Calculate age
+        const age = this.calculateAgeFromBirthday(birthday);
+        
+        const member = { name, birthday, age, fatigue, stress, schedule };
         
         if (this.currentEditIndex !== null) {
             // Update existing
@@ -192,7 +268,11 @@ class PlannificateurMaison {
             return;
         }
         
-        container.innerHTML = this.members.map((member, index) => `
+        container.innerHTML = this.members.map((member, index) => {
+            const birthday = member.birthday ? new Date(member.birthday) : null;
+            const birthdayStr = birthday ? birthday.toLocaleDateString('fr-FR') : 'Non spécifié';
+            
+            return `
             <div class="member-card">
                 <div class="member-header">
                     <span class="member-name">${this.escapeHtml(member.name)}</span>
@@ -208,7 +288,11 @@ class PlannificateurMaison {
                 <div class="member-info">
                     <div class="info-item">
                         <i class="fas fa-birthday-cake"></i>
-                        <span><strong>Âge:</strong> ${member.age} ans</span>
+                        <span><strong>Âge:</strong> ${member.age || 'Non spécifié'} ans</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-calendar"></i>
+                        <span><strong>Anniversaire:</strong> ${birthdayStr}</span>
                     </div>
                     <div class="info-item">
                         <i class="fas fa-tired"></i>
@@ -223,8 +307,33 @@ class PlannificateurMaison {
                         </span>
                     </div>
                 </div>
+                <div class="member-schedule">
+                    <h4>Emploi du temps hebdomadaire</h4>
+                    <div class="schedule-grid">
+                        ${this.daysOfWeek.map((day, idx) => {
+                            const status = this.getDayStatus(member, idx);
+                            const statusClass = this.getStatusClass(status);
+                            return `
+                                <div class="schedule-day">
+                                    <span class="day-name">${day}</span>
+                                    <span class="status-badge ${statusClass}">${status}</span>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
             </div>
-        `).join('');
+        `}).join('');
+    }
+    
+    getStatusClass(status) {
+        const classes = {
+            'Sur site': 'status-site',
+            'Télétravail': 'status-remote',
+            "À l'école": 'status-school',
+            'En congés': 'status-vacation'
+        };
+        return classes[status] || 'status-site';
     }
     
     editMember(index) {
@@ -233,7 +342,6 @@ class PlannificateurMaison {
     
     // ===== Stores Management =====
     openStoreForm(store = null, index = null) {
-        const form = document.getElementById('storeForm');
         const overlay = document.getElementById('storeFormOverlay');
         
         if (store) {
@@ -326,7 +434,6 @@ class PlannificateurMaison {
     
     // ===== Meals Management =====
     openMealForm(meal = null, index = null) {
-        const form = document.getElementById('mealForm');
         const overlay = document.getElementById('mealFormOverlay');
         
         if (meal) {
@@ -341,18 +448,7 @@ class PlannificateurMaison {
             document.getElementById('mealSteps').value = meal.steps?.join('\n') || '';
             
             // Set months
-            const monthsContainer = document.getElementById('mealMonths');
-            monthsContainer.innerHTML = '';
-            const allMonths = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
-            allMonths.forEach(month => {
-                const checkbox = document.createElement('label');
-                checkbox.style.display = 'inline-block';
-                checkbox.style.marginRight = '10px';
-                checkbox.innerHTML = `
-                    <input type="checkbox" value="${month}" ${meal.months?.includes(month) ? 'checked' : ''}> ${month}
-                `;
-                monthsContainer.appendChild(checkbox);
-            });
+            this.renderMonthCheckboxes(meal.months || []);
         } else {
             // Add mode
             this.currentEditIndex = null;
@@ -365,21 +461,26 @@ class PlannificateurMaison {
             document.getElementById('mealSteps').value = '';
             
             // Set months
-            const monthsContainer = document.getElementById('mealMonths');
-            monthsContainer.innerHTML = '';
-            const allMonths = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
-            allMonths.forEach(month => {
-                const checkbox = document.createElement('label');
-                checkbox.style.display = 'inline-block';
-                checkbox.style.marginRight = '10px';
-                checkbox.innerHTML = `
-                    <input type="checkbox" value="${month}"> ${month}
-                `;
-                monthsContainer.appendChild(checkbox);
-            });
+            this.renderMonthCheckboxes([]);
         }
         
         overlay.classList.add('active');
+    }
+    
+    renderMonthCheckboxes(selectedMonths) {
+        const container = document.getElementById('mealMonths');
+        container.innerHTML = '';
+        
+        const allMonths = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+        allMonths.forEach(month => {
+            const label = document.createElement('label');
+            label.style.display = 'inline-block';
+            label.style.marginRight = '10px';
+            label.innerHTML = `
+                <input type="checkbox" value="${month}" ${selectedMonths.includes(month) ? 'checked' : ''}> ${month}
+            `;
+            container.appendChild(label);
+        });
     }
     
     saveMeal() {

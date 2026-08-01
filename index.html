@@ -51,7 +51,7 @@
             </button>
         </nav>
 
-        <!-- Main Content - Only Home Section -->
+        <!-- Main Content -->
         <main class="main-content">
             <!-- Home Section -->
             <section id="home" class="section active">
@@ -219,8 +219,6 @@
         </footer>
     </div>
 
-    <script src="app.js"></script>
-
     <!-- Member Form Overlay -->
     <div id="memberFormOverlay" class="form-overlay">
         <div class="form-modal">
@@ -234,8 +232,12 @@
                     <input type="text" id="memberName" placeholder="Entrez le prénom">
                 </div>
                 <div class="form-group">
-                    <label for="memberAge">Âge</label>
-                    <input type="number" id="memberAge" placeholder="Âge en années" min="0" max="120">
+                    <label for="memberBirthday">Date d'anniversaire *</label>
+                    <input type="date" id="memberBirthday">
+                </div>
+                <div class="form-group">
+                    <label for="memberAge">Âge (calculé automatiquement)</label>
+                    <input type="number" id="memberAge" readonly>
                 </div>
                 <div class="form-group">
                     <label for="memberFatigue">Niveau de fatigue (1-5) *</label>
@@ -256,6 +258,10 @@
                         <option value="4">4 - Stressé</option>
                         <option value="5">5 - Très stressé</option>
                     </select>
+                </div>
+                <div class="form-group">
+                    <label>Emploi du temps hebdomadaire</label>
+                    <div id="memberSchedule" class="schedule-inputs"></div>
                 </div>
             </div>
             <div class="form-actions">
@@ -315,11 +321,17 @@
                 </div>
                 <div class="form-group">
                     <label for="mealIngredients">Ingrédients * (un par ligne)</label>
-                    <textarea id="mealIngredients" placeholder="Ex:&#10;200g de farine&#10;3 œufs&#10;100g de sucre"></textarea>
+                    <textarea id="mealIngredients" placeholder="Ex:
+200g de farine
+3 œufs
+100g de sucre"></textarea>
                 </div>
                 <div class="form-group">
                     <label for="mealSteps">Étapes de la recette * (une par ligne)</label>
-                    <textarea id="mealSteps" placeholder="Ex:&#10;1. Mélanger la farine et le sucre&#10;2. Ajouter les œufs&#10;3. Cuire à 180°C pendant 20 minutes"></textarea>
+                    <textarea id="mealSteps" placeholder="Ex:
+1. Mélanger la farine et le sucre
+2. Ajouter les œufs
+3. Cuire à 180°C pendant 20 minutes"></textarea>
                 </div>
             </div>
             <div class="form-actions">
@@ -330,5 +342,7 @@
             </div>
         </div>
     </div>
+
+    <script src="app.js"></script>
 </body>
 </html>
