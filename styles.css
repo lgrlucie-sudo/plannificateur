@@ -1594,3 +1594,224 @@ body {
     border-left-color: var(--success-color) !important;
     opacity: 0.7;
 }
+
+/* ===== Admin Section ===== */
+.admin-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+    flex-wrap: wrap;
+}
+
+.admin-tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: var(--transition);
+    border-bottom: 3px solid transparent;
+}
+
+.admin-tab-btn:hover {
+    color: var(--primary-color);
+    background-color: var(--bg-tertiary);
+}
+
+.admin-tab-btn.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+}
+
+.admin-tab-btn i {
+    font-size: 1rem;
+}
+
+.admin-content {
+    background-color: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    box-shadow: var(--shadow-md);
+}
+
+.admin-tab {
+    display: none;
+}
+
+.admin-tab.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.admin-header h3 {
+    font-size: 1.2rem;
+    color: var(--text-primary);
+}
+
+/* ===== Members List ===== */
+.members-list,
+.stores-list,
+.recipes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.member-card,
+.store-card,
+.recipe-card {
+    background-color: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    padding: 15px;
+    display: flex;
+    gap: 15px;
+    transition: var(--transition);
+    border-left: 4px solid var(--primary-color);
+}
+
+.member-card:hover,
+.store-card:hover,
+.recipe-card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.member-avatar,
+.store-icon,
+.recipe-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: var(--radius-circle);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.member-avatar {
+    background: linear-gradient(135deg, #74B9FF, #0984E3);
+    color: white;
+}
+
+.store-icon {
+    background: linear-gradient(135deg, #FD79A8, #E84393);
+    color: white;
+}
+
+.recipe-icon {
+    background: linear-gradient(135deg, #A29BFE, #6C5CE7);
+    color: white;
+}
+
+.member-info,
+.store-info,
+.recipe-info {
+    flex: 1;
+}
+
+.member-name,
+.store-name,
+.recipe-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 5px;
+    font-size: 1rem;
+}
+
+.member-details,
+.store-details,
+.recipe-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.member-age,
+.store-type,
+.recipe-category {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 8px;
+    background-color: var(--bg-tertiary);
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+}
+
+.member-actions,
+.store-actions,
+.recipe-actions {
+    display: flex;
+    gap: 8px;
+    opacity: 0;
+    transition: var(--transition);
+}
+
+.member-card:hover .member-actions,
+.store-card:hover .store-actions,
+.recipe-card:hover .recipe-actions {
+    opacity: 1;
+}
+
+/* ===== Recipe Card ===== */
+.recipe-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 8px;
+    font-size: 0.8rem;
+}
+
+.recipe-time {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--text-secondary);
+}
+
+.recipe-difficulty {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    font-size: 0.7rem;
+    font-weight: 500;
+}
+
+.recipe-difficulty.facile {
+    background-color: rgba(76, 175, 80, 0.1);
+    color: #4CAF50;
+}
+
+.recipe-difficulty.moyenne {
+    background-color: rgba(255, 193, 7, 0.1);
+    color: #FFC107;
+}
+
+.recipe-difficulty.difficile {
+    background-color: rgba(244, 67, 54, 0.1);
+    color: #F44336;
+}
+
+.recipe-favorite {
+    color: #FFD700;
+    font-size: 0.9rem;
+}

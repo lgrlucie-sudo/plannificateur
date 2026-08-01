@@ -5,6 +5,9 @@ class PlannificateurMaison {
         this.tasks = [];
         this.appointments = [];
         this.menus = {};
+        this.members = [];
+        this.stores = [];
+        this.recipes = [];
         this.currentDate = new Date();
         this.currentWeekStart = this.getWeekStart(new Date());
         this.currentMonth = this.currentDate.getMonth();
@@ -15,9 +18,11 @@ class PlannificateurMaison {
     
     init() {
         this.loadData();
+        this.setupAdminEventListeners();
         this.setupEventListeners();
         this.renderCalendar();
         this.updateWeekDates();
+                this.showAdminTab('members');
         this.updateStats();
         this.showSection(this.currentSection);
     }
@@ -28,16 +33,25 @@ class PlannificateurMaison {
         const savedTasks = localStorage.getItem('plannificateur_tasks');
         const savedAppointments = localStorage.getItem('plannificateur_appointments');
         const savedMenus = localStorage.getItem('plannificateur_menus');
+        const savedMembers = localStorage.getItem('plannificateur_members');
+        const savedStores = localStorage.getItem('plannificateur_stores');
+        const savedRecipes = localStorage.getItem('plannificateur_recipes');
         
         if (savedTasks) this.tasks = JSON.parse(savedTasks);
         if (savedAppointments) this.appointments = JSON.parse(savedAppointments);
         if (savedMenus) this.menus = JSON.parse(savedMenus);
+        if (savedMembers) this.members = JSON.parse(savedMembers);
+        if (savedStores) this.stores = JSON.parse(savedStores);
+        if (savedRecipes) this.recipes = JSON.parse(savedRecipes);
     }
     
     saveData() {
         localStorage.setItem('plannificateur_tasks', JSON.stringify(this.tasks));
         localStorage.setItem('plannificateur_appointments', JSON.stringify(this.appointments));
         localStorage.setItem('plannificateur_menus', JSON.stringify(this.menus));
+        localStorage.setItem('plannificateur_members', JSON.stringify(this.members));
+        localStorage.setItem('plannificateur_stores', JSON.stringify(this.stores));
+        localStorage.setItem('plannificateur_recipes', JSON.stringify(this.recipes));
     }
     
     // ===== Navigation =====
@@ -210,6 +224,10 @@ class PlannificateurMaison {
             case 'menus':
                 this.renderMenus();
                 this.updateWeekDates();
+                break;
+            case 'admin':
+                this.renderMembers();
+                this.showAdminTab('members');
                 break;
         }
         
@@ -600,6 +618,7 @@ class PlannificateurMaison {
         this.menus[menuKey] = menu;
         this.saveData();
         this.renderMenus();
+                this.renderMembers();
         this.closeAllModals();
     }
     
@@ -648,6 +667,7 @@ class PlannificateurMaison {
             delete this.menus[menuKey];
             this.saveData();
             this.renderMenus();
+                this.renderMembers();
         }
     }
     
@@ -703,8 +723,12 @@ class PlannificateurMaison {
     
     clearShoppingList() {
         this.menus = {};
+        this.members = [];
+        this.stores = [];
+        this.recipes = [];
         this.saveData();
         this.renderMenus();
+                this.renderMembers();
     }
     
     updateWeekDates() {
@@ -740,6 +764,7 @@ class PlannificateurMaison {
     changeWeek(days) {
         this.currentWeekStart.setDate(this.currentWeekStart.getDate() + days);
         this.updateWeekDates();
+                this.showAdminTab('members');
     }
     
     // ===== Stats =====
@@ -842,3 +867,419 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Make app available globally for onclick handlers
 window.app = null;
+
+    // ===== Admin Management =====
+    setupAdminEventListeners() {
+        // Admin tab buttons
+        document.querySelectorAll('.admin-tab-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const tab = e.target.closest('.admin-tab-btn').dataset.tab;
+                this.showAdminTab(tab);
+            });
+        });
+        
+        // Add buttons
+        document.getElementById('add-member-btn').addEventListener('click', () => this.openModal('add-member-modal'));
+        document.getElementById('add-store-btn').addEventListener('click', () => this.openModal('add-store-modal'));
+        document.getElementById('add-recipe-btn').addEventListener('click', () => this.openModal('add-recipe-modal'));
+        
+        // Cancel buttons
+        document.getElementById('cancel-member').addEventListener('click', () => this.closeAllModals());
+        document.getElementById('cancel-store').addEventListener('click', () => this.closeAllModals());
+        document.getElementById('cancel-recipe').addEventListener('click', () => this.closeAllModals());
+        
+        // Form submissions
+        document.getElementById('member-form').addEventListener('submit', (e) => this.handleMemberSubmit(e));
+        document.getElementById('store-form').addEventListener('submit', (e) => this.handleStoreSubmit(e));
+        document.getElementById('recipe-form').addEventListener('submit', (e) => this.handleRecipeSubmit(e));
+    }
+    
+    showAdminTab(tab) {
+        // Update tab buttons
+        document.querySelectorAll('.admin-tab-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.tab === tab);
+        });
+        
+        // Show/hide tabs
+        document.querySelectorAll('.admin-tab').forEach(t => {
+            t.classList.toggle('active', t.id === `${tab}-tab`);
+        });
+        
+        // Render content
+        switch (tab) {
+            case 'members':
+                this.renderMembers();
+                break;
+            case 'stores':
+                this.renderStores();
+                break;
+            case 'recipes':
+                this.renderRecipes();
+                break;
+        }
+    }
+    
+    // ===== Members =====
+    renderMembers() {
+        const membersList = document.getElementById('members-list');
+        
+        if (!this.members || this.members.length === 0) {
+            membersList.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-user-plus"></i>
+                    <p>Aucun membre enregistré</p>
+                    <p class="subtitle">Ajoutez les membres de votre foyer</p>
+                </div>
+            `;
+            return;
+        }
+        
+        membersList.innerHTML = this.members.map(member => this.createMemberElement(member)).join('');
+    }
+    
+    createMemberElement(member) {
+        const initials = member.name.split(' ').map(n => n[0]).join('').toUpperCase();
+        const roleLabel = this.getRoleLabel(member.role);
+        
+        return `
+            <div class="member-card" data-member-id="${member.id}">
+                <div class="member-avatar">
+                    <span>${initials}</span>
+                </div>
+                <div class="member-info">
+                    <div class="member-name">${member.name}</div>
+                    <div class="member-details">
+                        ${member.age ? `<span class="member-age"><i class="fas fa-birthday-cake"></i> ${member.age} ans</span>` : ''}
+                        <span class="member-role">${roleLabel}</span>
+                        ${member.notes ? `<span class="member-note"><i class="fas fa-sticky-note"></i> ${member.notes.substring(0, 30)}...</span>` : ''}
+                    </div>
+                </div>
+                <div class="member-actions">
+                    <button class="task-action-btn edit" onclick="app.editMember('${member.id}')">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="task-action-btn delete" onclick="app.deleteMember('${member.id}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+    
+    handleMemberSubmit(e) {
+        e.preventDefault();
+        
+        const memberId = document.getElementById('member-id').value;
+        const member = {
+            id: memberId || Date.now().toString(),
+            name: document.getElementById('member-name').value,
+            age: document.getElementById('member-age').value ? parseInt(document.getElementById('member-age').value) : null,
+            role: document.getElementById('member-role').value,
+            notes: document.getElementById('member-notes').value
+        };
+        
+        if (!this.members) this.members = [];
+        
+        if (memberId) {
+            // Update existing member
+            const index = this.members.findIndex(m => m.id === memberId);
+            if (index !== -1) {
+                this.members[index] = member;
+            }
+        } else {
+            // Add new member
+            this.members.push(member);
+        }
+        
+        this.saveData();
+        this.renderMembers();
+        this.closeAllModals();
+        this.resetForm('member-form');
+    }
+    
+    editMember(memberId) {
+        const member = this.members.find(m => m.id === memberId);
+        if (!member) return;
+        
+        document.getElementById('member-id').value = member.id;
+        document.getElementById('member-name').value = member.name;
+        document.getElementById('member-age').value = member.age || '';
+        document.getElementById('member-role').value = member.role || 'adulte';
+        document.getElementById('member-notes').value = member.notes || '';
+        
+        this.openModal('add-member-modal');
+    }
+    
+    deleteMember(memberId) {
+        if (confirm('Êtes-vous sûr de vouloir supprimer ce membre ?')) {
+            this.members = this.members.filter(m => m.id !== memberId);
+            this.saveData();
+            this.renderMembers();
+        }
+    }
+    
+    // ===== Stores =====
+    renderStores() {
+        const storesList = document.getElementById('stores-list');
+        
+        if (!this.stores || this.stores.length === 0) {
+            storesList.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-store"></i>
+                    <p>Aucun magasin enregistré</p>
+                    <p class="subtitle">Ajoutez vos magasins préférés</p>
+                </div>
+            `;
+            return;
+        }
+        
+        storesList.innerHTML = this.stores.map(store => this.createStoreElement(store)).join('');
+    }
+    
+    createStoreElement(store) {
+        const initials = store.name.substring(0, 2).toUpperCase();
+        const typeLabel = this.getStoreTypeLabel(store.type);
+        
+        return `
+            <div class="store-card" data-store-id="${store.id}">
+                <div class="store-icon">
+                    <i class="fas fa-shopping-basket"></i>
+                </div>
+                <div class="store-info">
+                    <div class="store-name">${store.name}</div>
+                    <div class="store-details">
+                        ${store.address ? `<span class="store-address"><i class="fas fa-map-marker-alt"></i> ${store.address}</span>` : ''}
+                        <span class="store-type">${typeLabel}</span>
+                        ${store.distance ? `<span class="store-distance"><i class="fas fa-road"></i> ${store.distance} km</span>` : ''}
+                        ${store.notes ? `<span class="store-note"><i class="fas fa-sticky-note"></i> ${store.notes.substring(0, 30)}...</span>` : ''}
+                    </div>
+                </div>
+                <div class="store-actions">
+                    <button class="task-action-btn edit" onclick="app.editStore('${store.id}')">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="task-action-btn delete" onclick="app.deleteStore('${store.id}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+    
+    handleStoreSubmit(e) {
+        e.preventDefault();
+        
+        const storeId = document.getElementById('store-id').value;
+        const store = {
+            id: storeId || Date.now().toString(),
+            name: document.getElementById('store-name').value,
+            address: document.getElementById('store-address').value,
+            type: document.getElementById('store-type').value,
+            distance: document.getElementById('store-distance').value ? parseFloat(document.getElementById('store-distance').value) : null,
+            notes: document.getElementById('store-notes').value
+        };
+        
+        if (!this.stores) this.stores = [];
+        
+        if (storeId) {
+            // Update existing store
+            const index = this.stores.findIndex(s => s.id === storeId);
+            if (index !== -1) {
+                this.stores[index] = store;
+            }
+        } else {
+            // Add new store
+            this.stores.push(store);
+        }
+        
+        this.saveData();
+        this.renderStores();
+        this.closeAllModals();
+        this.resetForm('store-form');
+    }
+    
+    editStore(storeId) {
+        const store = this.stores.find(s => s.id === storeId);
+        if (!store) return;
+        
+        document.getElementById('store-id').value = store.id;
+        document.getElementById('store-name').value = store.name;
+        document.getElementById('store-address').value = store.address || '';
+        document.getElementById('store-type').value = store.type || 'supermarche';
+        document.getElementById('store-distance').value = store.distance || '';
+        document.getElementById('store-notes').value = store.notes || '';
+        
+        this.openModal('add-store-modal');
+    }
+    
+    deleteStore(storeId) {
+        if (confirm('Êtes-vous sûr de vouloir supprimer ce magasin ?')) {
+            this.stores = this.stores.filter(s => s.id !== storeId);
+            this.saveData();
+            this.renderStores();
+        }
+    }
+    
+    // ===== Recipes =====
+    renderRecipes() {
+        const recipesList = document.getElementById('recipes-list');
+        
+        if (!this.recipes || this.recipes.length === 0) {
+            recipesList.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-utensils"></i>
+                    <p>Aucun repas préenregistré</p>
+                    <p class="subtitle">Ajoutez vos recettes favorites</p>
+                </div>
+            `;
+            return;
+        }
+        
+        recipesList.innerHTML = this.recipes.map(recipe => this.createRecipeElement(recipe)).join('');
+    }
+    
+    createRecipeElement(recipe) {
+        const initials = recipe.name.substring(0, 2).toUpperCase();
+        const categoryLabel = this.getRecipeCategoryLabel(recipe.category);
+        const difficultyLabel = this.getDifficultyLabel(recipe.difficulty);
+        
+        return `
+            <div class="recipe-card" data-recipe-id="${recipe.id}">
+                <div class="recipe-icon">
+                    <i class="fas fa-utensils"></i>
+                </div>
+                <div class="recipe-info">
+                    <div class="recipe-name">${recipe.name}</div>
+                    <div class="recipe-details">
+                        <span class="recipe-category">${categoryLabel}</span>
+                        ${recipe.servings ? `<span class="recipe-serving"><i class="fas fa-users"></i> ${recipe.servings} pers.</span>` : ''}
+                    </div>
+                    <div class="recipe-meta">
+                        ${recipe.prepTime ? `<span class="recipe-time"><i class="fas fa-clock"></i> ${recipe.prepTime} min</span>` : ''}
+                        ${recipe.cookTime ? `<span class="recipe-time"><i class="fas fa-fire"></i> ${recipe.cookTime} min</span>` : ''}
+                        <span class="recipe-difficulty ${recipe.difficulty}">${difficultyLabel}</span>
+                        ${recipe.favorite ? `<span class="recipe-favorite"><i class="fas fa-star"></i></span>` : ''}
+                    </div>
+                </div>
+                <div class="recipe-actions">
+                    <button class="task-action-btn edit" onclick="app.editRecipe('${recipe.id}')">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="task-action-btn delete" onclick="app.deleteRecipe('${recipe.id}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+    
+    handleRecipeSubmit(e) {
+        e.preventDefault();
+        
+        const recipeId = document.getElementById('recipe-id').value;
+        const ingredients = document.getElementById('recipe-ingredients').value
+            .split('\n')
+            .map(i => i.trim())
+            .filter(i => i);
+        
+        const recipe = {
+            id: recipeId || Date.now().toString(),
+            name: document.getElementById('recipe-name').value,
+            category: document.getElementById('recipe-category').value,
+            ingredients: ingredients,
+            servings: document.getElementById('recipe-servings').value ? parseInt(document.getElementById('recipe-servings').value) : 4,
+            prepTime: document.getElementById('recipe-prep-time').value ? parseInt(document.getElementById('recipe-prep-time').value) : 0,
+            cookTime: document.getElementById('recipe-cook-time').value ? parseInt(document.getElementById('recipe-cook-time').value) : 0,
+            difficulty: document.getElementById('recipe-difficulty').value,
+            instructions: document.getElementById('recipe-instructions').value,
+            favorite: document.getElementById('recipe-favorite').checked
+        };
+        
+        if (!this.recipes) this.recipes = [];
+        
+        if (recipeId) {
+            // Update existing recipe
+            const index = this.recipes.findIndex(r => r.id === recipeId);
+            if (index !== -1) {
+                this.recipes[index] = recipe;
+            }
+        } else {
+            // Add new recipe
+            this.recipes.push(recipe);
+        }
+        
+        this.saveData();
+        this.renderRecipes();
+        this.closeAllModals();
+        this.resetForm('recipe-form');
+    }
+    
+    editRecipe(recipeId) {
+        const recipe = this.recipes.find(r => r.id === recipeId);
+        if (!recipe) return;
+        
+        document.getElementById('recipe-id').value = recipe.id;
+        document.getElementById('recipe-name').value = recipe.name;
+        document.getElementById('recipe-category').value = recipe.category || 'plat-principal';
+        document.getElementById('recipe-ingredients').value = recipe.ingredients ? recipe.ingredients.join('\n') : '';
+        document.getElementById('recipe-servings').value = recipe.servings || 4;
+        document.getElementById('recipe-prep-time').value = recipe.prepTime || 0;
+        document.getElementById('recipe-cook-time').value = recipe.cookTime || 0;
+        document.getElementById('recipe-difficulty').value = recipe.difficulty || 'facile';
+        document.getElementById('recipe-instructions').value = recipe.instructions || '';
+        document.getElementById('recipe-favorite').checked = recipe.favorite || false;
+        
+        this.openModal('add-recipe-modal');
+    }
+    
+    deleteRecipe(recipeId) {
+        if (confirm('Êtes-vous sûr de vouloir supprimer ce repas préenregistré ?')) {
+            this.recipes = this.recipes.filter(r => r.id !== recipeId);
+            this.saveData();
+            this.renderRecipes();
+        }
+    }
+    
+    // ===== Admin Utilities =====
+    getRoleLabel(role) {
+        const labels = {
+            'adulte': 'Adulte',
+            'enfant': 'Enfant',
+            'ado': 'Adolescent',
+            'senior': 'Senior'
+        };
+        return labels[role] || role;
+    }
+    
+    getStoreTypeLabel(type) {
+        const labels = {
+            'supermarche': 'Supermarché',
+            'boucherie': 'Boucherie',
+            'boulangerie': 'Boulangerie',
+            'epicerie': 'Épicerie',
+            'marche': 'Marché',
+            'autre': 'Autre'
+        };
+        return labels[type] || type;
+    }
+    
+    getRecipeCategoryLabel(category) {
+        const labels = {
+            'plat-principal': 'Plat principal',
+            'entree': 'Entrée',
+            'dessert': 'Dessert',
+            'petit-dejeuner': 'Petit-déjeuner',
+            'soupe': 'Soupe',
+            'salade': 'Salade'
+        };
+        return labels[category] || category;
+    }
+    
+    getDifficultyLabel(difficulty) {
+        const labels = {
+            'facile': 'Facile',
+            'moyenne': 'Moyenne',
+            'difficile': 'Difficile'
+        };
+        return labels[difficulty] || difficulty;
+    }

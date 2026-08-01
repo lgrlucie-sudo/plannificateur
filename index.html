@@ -45,6 +45,10 @@
                 <i class="fas fa-utensils"></i>
                 <span>Menus</span>
             </button>
+            <button class="nav-btn" data-section="admin">
+                <i class="fas fa-cog"></i>
+                <span>Admin</span>
+            </button>
         </nav>
 
         <!-- Main Content -->
@@ -236,6 +240,79 @@
                         <div class="empty-state small">
                             <i class="fas fa-info-circle"></i>
                             <p>Aucun événement pour cette date</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Admin Section -->
+            <section id="admin" class="section">
+                <div class="section-header">
+                    <h2>Administration</h2>
+                    <p class="subtitle">Gérez les membres, magasins et repas préenregistrés</p>
+                </div>
+
+                <div class="admin-tabs">
+                    <button class="admin-tab-btn active" data-tab="members">
+                        <i class="fas fa-users"></i> Membres
+                    </button>
+                    <button class="admin-tab-btn" data-tab="stores">
+                        <i class="fas fa-store"></i> Magasins
+                    </button>
+                    <button class="admin-tab-btn" data-tab="recipes">
+                        <i class="fas fa-book"></i> Repas préenregistrés
+                    </button>
+                </div>
+
+                <div class="admin-content">
+                    <!-- Members Tab -->
+                    <div class="admin-tab active" id="members-tab">
+                        <div class="admin-header">
+                            <h3>Membres de la maison</h3>
+                            <button class="btn-primary" id="add-member-btn">
+                                <i class="fas fa-plus"></i> Ajouter un membre
+                            </button>
+                        </div>
+                        <div class="members-list" id="members-list">
+                            <div class="empty-state">
+                                <i class="fas fa-user-plus"></i>
+                                <p>Aucun membre enregistré</p>
+                                <p class="subtitle">Ajoutez les membres de votre foyer</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stores Tab -->
+                    <div class="admin-tab" id="stores-tab">
+                        <div class="admin-header">
+                            <h3>Magasins</h3>
+                            <button class="btn-primary" id="add-store-btn">
+                                <i class="fas fa-plus"></i> Ajouter un magasin
+                            </button>
+                        </div>
+                        <div class="stores-list" id="stores-list">
+                            <div class="empty-state">
+                                <i class="fas fa-store"></i>
+                                <p>Aucun magasin enregistré</p>
+                                <p class="subtitle">Ajoutez vos magasins préférés</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recipes Tab -->
+                    <div class="admin-tab" id="recipes-tab">
+                        <div class="admin-header">
+                            <h3>Repas préenregistrés</h3>
+                            <button class="btn-primary" id="add-recipe-btn">
+                                <i class="fas fa-plus"></i> Ajouter un repas
+                            </button>
+                        </div>
+                        <div class="recipes-list" id="recipes-list">
+                            <div class="empty-state">
+                                <i class="fas fa-utensils"></i>
+                                <p>Aucun repas préenregistré</p>
+                                <p class="subtitle">Ajoutez vos recettes favorites</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -637,6 +714,162 @@
                 <div class="modal-footer">
                     <button class="btn-secondary" type="button" id="cancel-menu">Annuler</button>
                     <button class="btn-primary" type="submit" form="menu-form">Enregistrer</button>
+                </div>
+            </div>
+
+            <!-- Add Member Modal -->
+            <div class="modal" id="add-member-modal">
+                <div class="modal-header">
+                    <h3>Ajouter un membre</h3>
+                    <button class="close-modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="member-form">
+                        <input type="hidden" id="member-id">
+                        <div class="form-group">
+                            <label for="member-name">Nom complet</label>
+                            <input type="text" id="member-name" placeholder="Ex: Jean Dupont" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="member-age">Âge</label>
+                                <input type="number" id="member-age" min="1" max="120" placeholder="Ex: 35">
+                            </div>
+                            <div class="form-group">
+                                <label for="member-role">Rôle</label>
+                                <select id="member-role">
+                                    <option value="adulte">Adulte</option>
+                                    <option value="enfant">Enfant</option>
+                                    <option value="ado">Adolescent</option>
+                                    <option value="senior">Senior</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="member-notes">Notes</label>
+                            <textarea id="member-notes" placeholder="Allergies, préférences alimentaires..." rows="2"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" type="button" id="cancel-member">Annuler</button>
+                    <button class="btn-primary" type="submit" form="member-form">Enregistrer</button>
+                </div>
+            </div>
+
+            <!-- Add Store Modal -->
+            <div class="modal" id="add-store-modal">
+                <div class="modal-header">
+                    <h3>Ajouter un magasin</h3>
+                    <button class="close-modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="store-form">
+                        <input type="hidden" id="store-id">
+                        <div class="form-group">
+                            <label for="store-name">Nom du magasin</label>
+                            <input type="text" id="store-name" placeholder="Ex: Carrefour" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="store-address">Adresse</label>
+                            <input type="text" id="store-address" placeholder="Ex: 123 Rue de Paris, 75001 Paris">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="store-type">Type</label>
+                                <select id="store-type">
+                                    <option value="supermarche">Supermarché</option>
+                                    <option value="boucherie">Boucherie</option>
+                                    <option value="boulangerie">Boulangerie</option>
+                                    <option value="epicerie">Épicerie</option>
+                                    <option value="marche">Marché</option>
+                                    <option value="autre">Autre</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="store-distance">Distance (km)</label>
+                                <input type="number" id="store-distance" min="0" step="0.1" placeholder="Ex: 2.5">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="store-notes">Notes</label>
+                            <textarea id="store-notes" placeholder="Horaires, produits spécifiques..." rows="2"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" type="button" id="cancel-store">Annuler</button>
+                    <button class="btn-primary" type="submit" form="store-form">Enregistrer</button>
+                </div>
+            </div>
+
+            <!-- Add Recipe Modal -->
+            <div class="modal" id="add-recipe-modal">
+                <div class="modal-header">
+                    <h3>Ajouter un repas préenregistré</h3>
+                    <button class="close-modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="recipe-form">
+                        <input type="hidden" id="recipe-id">
+                        <div class="form-group">
+                            <label for="recipe-name">Nom du repas</label>
+                            <input type="text" id="recipe-name" placeholder="Ex: Poulet rôti aux légumes" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="recipe-category">Catégorie</label>
+                            <select id="recipe-category">
+                                <option value="plat-principal">Plat principal</option>
+                                <option value="entree">Entrée</option>
+                                <option value="dessert">Dessert</option>
+                                <option value="petit-dejeuner">Petit-déjeuner</option>
+                                <option value="soupe">Soupe</option>
+                                <option value="salade">Salade</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="recipe-ingredients">Ingrédients (un par ligne)</label>
+                            <textarea id="recipe-ingredients" placeholder="Ex: Poulet\nPommes de terre\nCarottes\nOignons" rows="4" required></textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="recipe-servings">Portions</label>
+                                <input type="number" id="recipe-servings" min="1" value="4">
+                            </div>
+                            <div class="form-group">
+                                <label for="recipe-prep-time">Temps de préparation (min)</label>
+                                <input type="number" id="recipe-prep-time" min="0" value="30">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="recipe-cook-time">Temps de cuisson (min)</label>
+                                <input type="number" id="recipe-cook-time" min="0" value="45">
+                            </div>
+                            <div class="form-group">
+                                <label for="recipe-difficulty">Difficulté</label>
+                                <select id="recipe-difficulty">
+                                    <option value="facile">Facile</option>
+                                    <option value="moyenne">Moyenne</option>
+                                    <option value="difficile">Difficile</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="recipe-instructions">Instructions</label>
+                            <textarea id="recipe-instructions" placeholder="Décrivez les étapes de préparation..." rows="3"></textarea>
+                        </div>
+                        <div class="form-group checkbox-group">
+                            <label>
+                                <input type="checkbox" id="recipe-favorite">
+                                <span>Repas préféré</span>
+                            </label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" type="button" id="cancel-recipe">Annuler</button>
+                    <button class="btn-primary" type="submit" form="recipe-form">Enregistrer</button>
                 </div>
             </div>
 
