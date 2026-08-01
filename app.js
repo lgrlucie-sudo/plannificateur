@@ -18,7 +18,6 @@ class PlannificateurMaison {
     
     init() {
         this.loadData();
-        this.setupAdminEventListeners();
         this.setupEventListeners();
         this.renderCalendar();
         this.updateWeekDates();
@@ -59,7 +58,7 @@ class PlannificateurMaison {
         // Navigation buttons
         document.querySelectorAll('.nav-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const section = e.target.closest('.nav-btn').dataset.section;
+                const section = btn.dataset.section;
                 this.showSection(section);
             });
         });
@@ -226,6 +225,7 @@ class PlannificateurMaison {
                 this.updateWeekDates();
                 break;
             case 'admin':
+                this.setupAdminEventListeners();
                 this.renderMembers();
                 this.showAdminTab('members');
                 break;
