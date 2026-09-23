@@ -231,6 +231,40 @@
                 </div>
             </section>
 
+            <!-- Tasks Section -->
+            <section id="tasks" class="section">
+                <div class="section-header">
+                    <h2>Gestion des Tâches Maison</h2>
+                    <p class="subtitle">Organisez et répartissez les tâches entre les membres du foyer</p>
+                </div>
+
+                <!-- Task Actions -->
+                <div class="task-actions">
+                    <button class="btn-primary" id="addTaskBtn">
+                        <i class="fas fa-plus"></i>
+                        Ajouter une tâche
+                    </button>
+                    <button class="btn-secondary" id="distributeTasksBtn">
+                        <i class="fas fa-random"></i>
+                        Répartir automatiquement
+                    </button>
+                </div>
+
+                <!-- Task Filters -->
+                <div class="task-filters">
+                    <button class="filter-btn active" data-filter="all">Toutes les tâches</button>
+                    <button class="filter-btn" data-filter="today">Aujourd'hui</button>
+                    <button class="filter-btn" data-filter="week">Cette semaine</button>
+                    <button class="filter-btn" data-filter="assigned">Affectées</button>
+                    <button class="filter-btn" data-filter="unassigned">Non affectées</button>
+                </div>
+
+                <!-- Tasks List -->
+                <div class="tasks-list" id="tasksList">
+                    <!-- Tasks will be added here dynamically -->
+                </div>
+            </section>
+
             <!-- Admin Section -->
             <section id="admin" class="section">
                 <div class="section-header">
@@ -311,6 +345,86 @@
         <footer class="footer">
             <p>© 2024 Plannificateur Maison - Créé avec ❤️ pour une organisation simplifiée</p>
         </footer>
+    </div>
+
+    <!-- Task Form Overlay -->
+    <div id="taskFormOverlay" class="form-overlay">
+        <div class="form-modal">
+            <div class="form-header">
+                <h3 id="taskFormTitle">Ajouter une tâche</h3>
+                <button class="form-close"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="form-body">
+                <div class="form-group">
+                    <label for="taskTitle">Titre *</label>
+                    <input type="text" id="taskTitle" placeholder="Ex: Faire le ménage">
+                </div>
+                <div class="form-group">
+                    <label for="taskDescription">Description</label>
+                    <textarea id="taskDescription" placeholder="Décrivez la tâche..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="taskDuration">Durée estimée (minutes) *</label>
+                    <input type="number" id="taskDuration" placeholder="Ex: 30" min="1" value="30">
+                </div>
+                <div class="form-group">
+                    <label for="taskMinAge">Âge minimum requis *</label>
+                    <input type="number" id="taskMinAge" placeholder="Ex: 12" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label for="taskPriority">Priorité *</label>
+                    <select id="taskPriority">
+                        <option value="1">1 - Très basse</option>
+                        <option value="2">2 - Basse</option>
+                        <option value="3" selected>3 - Normale</option>
+                        <option value="4">4 - Haute</option>
+                        <option value="5">5 - Urgente</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="taskRecurrence">Récurrence *</label>
+                    <select id="taskRecurrence">
+                        <option value="once">Une seule fois</option>
+                        <option value="daily">Quotidienne</option>
+                        <option value="weekly">Hebdomadaire</option>
+                        <option value="biweekly">Tous les 15 jours</option>
+                        <option value="monthly">Mensuelle</option>
+                        <option value="yearly">Annuelle</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="taskRecurrenceEnd">Fin de récurrence</label>
+                    <input type="date" id="taskRecurrenceEnd">
+                </div>
+                <div class="form-group">
+                    <label for="taskAssignedTo">Affectée à</label>
+                    <select id="taskAssignedTo">
+                        <option value="">Non affectée (répartition automatique)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="taskDueDate">Date limite</label>
+                    <input type="date" id="taskDueDate">
+                </div>
+                <div class="form-group">
+                    <label for="taskCategory">Catégorie</label>
+                    <select id="taskCategory">
+                        <option value="menage">Ménage</option>
+                        <option value="courses">Courses</option>
+                        <option value="jardinage">Jardinage</option>
+                        <option value="reparation">Réparation</option>
+                        <option value="organisation">Organisation</option>
+                        <option value="autre">Autre</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="btn-secondary" onclick="app.closeAllForms()">Annuler</button>
+                <button class="btn-primary" onclick="app.saveTask()">
+                    <i class="fas fa-save"></i> Enregistrer
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- Member Form Overlay -->

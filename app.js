@@ -12,6 +12,11 @@ class PlannificateurMaison {
         this.meals = JSON.parse(localStorage.getItem('meals')) || [];
         this.appointments = JSON.parse(localStorage.getItem('appointments')) || [];
         this.medicationOrders = JSON.parse(localStorage.getItem('medicationOrders')) || [];
+        this.tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        
+        // Task filters
+        this.currentTaskFilter = 'all';
+        this.currentTaskView = 'list';
         
         // Current editing item
         this.currentEditIndex = null;
@@ -27,6 +32,35 @@ class PlannificateurMaison {
         
         // Reminder options
         this.reminderOptions = [1, 2, 3, 4];
+        
+        // Task categories
+        this.taskCategories = [
+            { value: 'menage', label: 'Ménage', color: '#E3F2FD', textColor: '#1565C0' },
+            { value: 'courses', label: 'Courses', color: '#F3E5F5', textColor: '#6A1B9A' },
+            { value: 'jardinage', label: 'Jardinage', color: '#E8F5E9', textColor: '#2E7D32' },
+            { value: 'reparation', label: 'Réparation', color: '#FFF3E0', textColor: '#E65100' },
+            { value: 'organisation', label: 'Organisation', color: '#FCE4EC', textColor: '#C2185B' },
+            { value: 'autre', label: 'Autre', color: '#F5F5F5', textColor: '#616161' }
+        ];
+        
+        // Task recurrence options
+        this.recurrenceOptions = [
+            { value: 'once', label: 'Une seule fois' },
+            { value: 'daily', label: 'Quotidienne' },
+            { value: 'weekly', label: 'Hebdomadaire' },
+            { value: 'biweekly', label: 'Tous les 15 jours' },
+            { value: 'monthly', label: 'Mensuelle' },
+            { value: 'yearly', label: 'Annuelle' }
+        ];
+        
+        // Priority levels
+        this.priorityLevels = [
+            { value: 1, label: 'Très basse', color: '#2E7D32', bgColor: '#E8F5E9' },
+            { value: 2, label: 'Basse', color: '#558B2F', bgColor: '#F1F8E9' },
+            { value: 3, label: 'Normale', color: '#F57F17', bgColor: '#FFF8E1' },
+            { value: 4, label: 'Haute', color: '#FF8F00', bgColor: '#FFECB3' },
+            { value: 5, label: 'Urgente', color: '#C62828', bgColor: '#FFEBEE' }
+        ];
         
         this.init();
     }
@@ -139,6 +173,22 @@ class PlannificateurMaison {
                 this.switchAppointmentTab('upcoming');
             }
         });
+        
+        // Task buttons
+        document.getElementById('addTaskBtn')?.addEventListener('click', () => {
+            this.openTaskForm();
+        });
+        
+        document.getElementById('distributeTasksBtn')?.addEventListener('click', () => {
+            this.distributeTasks();
+        });
+        
+        // Task filter buttons
+        document.querySelectorAll('.filter-btn')?.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                this.switchTaskFilter(btn.dataset.filter);
+            });
+        });
     }
     
     showSection(section) {
@@ -166,6 +216,11 @@ class PlannificateurMaison {
         // If switching to appointments, ensure upcoming tab is active
         if (section === 'appointments') {
             this.switchAppointmentTab('upcoming');
+        }
+        
+        // If switching to tasks, render tasks
+        if (section === 'tasks') {
+            this.renderTasks();
         }
     }
     
@@ -1334,6 +1389,435 @@ class PlannificateurMaison {
         this.renderCalendar();
     }
     
+    // ===== Tasks Management =====
+    switchTaskFilter(filter) {
+        this.currentTaskFilter = filter;
+        
+        // Update filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.filter === filter);
+        });
+        
+        this.renderTasks();
+    }
+    
+    openTaskForm(task = null, index = null) {
+        const overlay = document.getElementById('taskFormOverlay');
+        
+        // Initialize assigned to select
+        this.initializeTaskAssignedSelect();
+        
+        if (task) {
+            // Edit mode
+            this.currentEditIndex = index;
+            this.currentEditType = 'task';
+            document.getElementById('taskFormTitle').textContent = 'Modifier la tâche';
+            document.getElementById('taskTitle').value = task.title || '';
+            document.getElementById('taskDescription').value = task.description || '';
+            document.getElementById('taskDuration').value = task.duration || 30;
+            document.getElementById('taskMinAge').value = task.minAge || 0;
+            document.getElementById('taskPriority').value = task.priority || 3;
+            document.getElementById('taskRecurrence').value = task.recurrence || 'once';
+            document.getElementById('taskRecurrenceEnd').value = task.recurrenceEnd || '';
+            document.getElementById('taskCategory').value = task.category || 'menage';
+            document.getElementById('taskDueDate').value = task.dueDate || '';
+            document.getElementById('taskAssignedTo').value = task.assignedTo || '';
+        } else {
+            // Add mode
+            this.currentEditIndex = null;
+            this.currentEditType = null;
+            document.getElementById('taskFormTitle').textContent = 'Ajouter une tâche';
+            document.getElementById('taskTitle').value = '';
+            document.getElementById('taskDescription').value = '';
+            document.getElementById('taskDuration').value = 30;
+            document.getElementById('taskMinAge').value = 0;
+            document.getElementById('taskPriority').value = 3;
+            document.getElementById('taskRecurrence').value = 'once';
+            document.getElementById('taskRecurrenceEnd').value = '';
+            document.getElementById('taskCategory').value = 'menage';
+            document.getElementById('taskDueDate').value = '';
+            document.getElementById('taskAssignedTo').value = '';
+        }
+        
+        overlay.classList.add('active');
+    }
+    
+    initializeTaskAssignedSelect() {
+        const select = document.getElementById('taskAssignedTo');
+        if (select) {
+            select.innerHTML = '<option value="">Non affectée (répartition automatique)</option>' +
+                this.members.map((member, index) => `
+                    <option value="${index}">${member.name}</option>
+                `).join('');
+        }
+    }
+    
+    saveTask() {
+        const title = document.getElementById('taskTitle').value.trim();
+        const description = document.getElementById('taskDescription').value.trim();
+        const duration = parseInt(document.getElementById('taskDuration').value) || 30;
+        const minAge = parseInt(document.getElementById('taskMinAge').value) || 0;
+        const priority = parseInt(document.getElementById('taskPriority').value) || 3;
+        const recurrence = document.getElementById('taskRecurrence').value || 'once';
+        const recurrenceEnd = document.getElementById('taskRecurrenceEnd').value || '';
+        const category = document.getElementById('taskCategory').value || 'menage';
+        const dueDate = document.getElementById('taskDueDate').value || '';
+        const assignedTo = document.getElementById('taskAssignedTo').value || '';
+        
+        if (!title) {
+            alert('Veuillez entrer un titre pour la tâche');
+            return;
+        }
+        
+        const task = {
+            title,
+            description,
+            duration,
+            minAge,
+            priority,
+            recurrence,
+            recurrenceEnd,
+            category,
+            dueDate,
+            assignedTo: assignedTo === '' ? null : parseInt(assignedTo),
+            createdAt: new Date().toISOString(),
+            completed: false
+        };
+        
+        if (this.currentEditIndex !== null) {
+            // Update existing
+            this.tasks[this.currentEditIndex] = task;
+        } else {
+            // Add new
+            this.tasks.push(task);
+        }
+        
+        this.saveData();
+        this.closeAllForms();
+        this.renderTasks();
+    }
+    
+    editTask(index) {
+        this.openTaskForm(this.tasks[index], index);
+    }
+    
+    deleteTask(index) {
+        if (confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?')) {
+            this.tasks.splice(index, 1);
+            this.saveData();
+            this.renderTasks();
+        }
+    }
+    
+    toggleTaskComplete(index) {
+        this.tasks[index].completed = !this.tasks[index].completed;
+        this.saveData();
+        this.renderTasks();
+    }
+    
+    reassignTask(index) {
+        const task = this.tasks[index];
+        if (task) {
+            task.assignedTo = null;
+            this.saveData();
+            this.renderTasks();
+        }
+    }
+    
+    getPriorityLabel(priority) {
+        const labels = { 1: 'Très basse', 2: 'Basse', 3: 'Normale', 4: 'Haute', 5: 'Urgente' };
+        return labels[priority] || 'Normale';
+    }
+    
+    getPriorityColor(priority) {
+        const colors = { 1: 'priority-1', 2: 'priority-2', 3: 'priority-3', 4: 'priority-4', 5: 'priority-5' };
+        return colors[priority] || 'priority-3';
+    }
+    
+    getCategoryClass(category) {
+        return `category-${category}`;
+    }
+    
+    getCategoryLabel(category) {
+        const labels = {
+            menage: 'Ménage',
+            courses: 'Courses',
+            jardinage: 'Jardinage',
+            reparation: 'Réparation',
+            organisation: 'Organisation',
+            autre: 'Autre'
+        };
+        return labels[category] || 'Autre';
+    }
+    
+    getRecurrenceLabel(recurrence) {
+        const labels = {
+            once: 'Une fois',
+            daily: 'Quotidienne',
+            weekly: 'Hebdomadaire',
+            biweekly: 'Tous les 15 jours',
+            monthly: 'Mensuelle',
+            yearly: 'Annuelle'
+        };
+        return labels[recurrence] || 'Une fois';
+    }
+    
+    getAssignedMemberName(assignedTo) {
+        if (assignedTo === null || assignedTo === undefined || assignedTo === '') {
+            return 'Non affectée';
+        }
+        const member = this.members[assignedTo];
+        return member ? member.name : 'Membre inconnu';
+    }
+    
+    isTaskDueSoon(task) {
+        if (!task.dueDate) return false;
+        
+        const dueDate = new Date(task.dueDate);
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        
+        return dueDate <= tomorrow && !task.completed;
+    }
+    
+    isTaskOverdue(task) {
+        if (!task.dueDate) return false;
+        
+        const dueDate = new Date(task.dueDate);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        return dueDate < today && !task.completed;
+    }
+    
+    filterTasks() {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        
+        const weekFromNow = new Date(today);
+        weekFromNow.setDate(weekFromNow.getDate() + 7);
+        
+        return this.tasks.filter(task => {
+            switch (this.currentTaskFilter) {
+                case 'today':
+                    if (!task.dueDate) return false;
+                    const taskDate = new Date(task.dueDate);
+                    return taskDate <= tomorrow && taskDate >= today;
+                case 'week':
+                    if (!task.dueDate) return false;
+                    const taskDate = new Date(task.dueDate);
+                    return taskDate <= weekFromNow && taskDate >= today;
+                case 'assigned':
+                    return task.assignedTo !== null && task.assignedTo !== undefined && task.assignedTo !== '';
+                case 'unassigned':
+                    return task.assignedTo === null || task.assignedTo === undefined || task.assignedTo === '';
+                default:
+                    return true;
+            }
+        });
+    }
+    
+    renderTasks() {
+        const container = document.getElementById('tasksList');
+        const filteredTasks = this.filterTasks();
+        
+        if (filteredTasks.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-tasks"></i>
+                    <p>Aucune tâche ${this.currentTaskFilter === 'all' ? '' : 'correspondant au filtre'} pour l'instant</p>
+                </div>
+            `;
+            return;
+        }
+        
+        // Render distribution summary
+        const distribution = this.getTaskDistribution();
+        const distributionHtml = `
+            <div class="distribution-summary">
+                <h3><i class="fas fa-chart-pie"></i> Répartition des tâches</h3>
+                <div class="distribution-grid">
+                    ${Object.entries(distribution).map(([memberIndex, count]) => {
+                        const member = this.members[parseInt(memberIndex)];
+                        const memberName = member ? member.name : 'Non affectées';
+                        return `
+                            <div class="distribution-item">
+                                <span class="member-name">${this.escapeHtml(memberName)}</span>
+                                <span class="task-count">${count}</span>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+        `;
+        
+        // Sort tasks by priority (descending), then by due date
+        filteredTasks.sort((a, b) => {
+            if (b.priority !== a.priority) return b.priority - a.priority;
+            if (a.dueDate && b.dueDate) return new Date(a.dueDate) - new Date(b.dueDate);
+            return 0;
+        });
+        
+        container.innerHTML = distributionHtml + filteredTasks.map((task, index) => {
+            const actualIndex = this.tasks.indexOf(task);
+            const dueSoon = this.isTaskDueSoon(task);
+            const overdue = this.isTaskOverdue(task);
+            const cardClass = task.completed ? 'task-card completed' : (overdue ? 'task-card overdue' : (dueSoon ? 'task-card due-soon' : 'task-card'));
+            
+            return `
+            <div class="${cardClass}">
+                <div class="task-header">
+                    <div>
+                        <div class="task-title">${this.escapeHtml(task.title)}</div>
+                        ${task.completed ? '<span class="status-badge" style="background-color: var(--success-color); color: white;">Terminée</span>' : ''}
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn-edit" onclick="app.editTask(${actualIndex})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-delete" onclick="app.deleteTask(${actualIndex})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                ${task.description ? `<div class="task-description">${this.escapeHtml(task.description)}</div>` : ''}
+                
+                <div class="task-meta">
+                    <span><i class="fas fa-clock"></i> ${task.duration} min</span>
+                    <span><i class="fas fa-child"></i> ${task.minAge}+ ans</span>
+                    <span><i class="fas fa-exclamation-circle"></i> <span class="priority-badge ${this.getPriorityColor(task.priority)}">${this.getPriorityLabel(task.priority)}</span></span>
+                    <span><i class="fas fa-repeat"></i> ${this.getRecurrenceLabel(task.recurrence)}</span>
+                </div>
+                
+                <div class="task-meta" style="margin-top: 8px;">
+                    <span><i class="fas fa-tag"></i> <span class="category-badge ${this.getCategoryClass(task.category)}">${this.getCategoryLabel(task.category)}</span></span>
+                    ${task.dueDate ? `<span><i class="fas fa-calendar"></i> ${new Date(task.dueDate).toLocaleDateString('fr-FR')}</span>` : ''}
+                </div>
+                
+                <div class="assigned-to">
+                    <i class="fas fa-user"></i>
+                    <span>${this.getAssignedMemberName(task.assignedTo)}</span>
+                </div>
+                
+                <div class="task-card-actions">
+                    ${!task.completed ? `
+                        <button class="btn-primary btn-complete" onclick="app.toggleTaskComplete(${actualIndex})">
+                            <i class="fas fa-check"></i> Marquer comme terminée
+                        </button>
+                    ` : `
+                        <button class="btn-secondary" onclick="app.toggleTaskComplete(${actualIndex})">
+                            <i class="fas fa-undo"></i> Réactiver
+                        </button>
+                    `}
+                    ${task.assignedTo !== null && task.assignedTo !== undefined && task.assignedTo !== '' ? `
+                        <button class="btn-secondary btn-reassign" onclick="app.reassignTask(${actualIndex})">
+                            <i class="fas fa-random"></i> Réaffecter
+                        </button>
+                    ` : ''}
+                </div>
+            </div>
+        `}).join('');
+    }
+    
+    getTaskDistribution() {
+        const distribution = {};
+        
+        // Count unassigned tasks
+        const unassignedCount = this.tasks.filter(t => t.assignedTo === null || t.assignedTo === undefined || t.assignedTo === '').length;
+        if (unassignedCount > 0) {
+            distribution['unassigned'] = unassignedCount;
+        }
+        
+        // Count tasks per member
+        this.members.forEach((member, index) => {
+            const count = this.tasks.filter(t => t.assignedTo === index).length;
+            if (count > 0) {
+                distribution[index] = count;
+            }
+        });
+        
+        return distribution;
+    }
+    
+    distributeTasks() {
+        if (this.members.length === 0) {
+            alert('Veuillez ajouter des membres avant de répartir les tâches');
+            return;
+        }
+        
+        const unassignedTasks = this.tasks.filter(t => t.assignedTo === null || t.assignedTo === undefined || t.assignedTo === '');
+        
+        if (unassignedTasks.length === 0) {
+            alert('Toutes les tâches sont déjà affectées');
+            return;
+        }
+        
+        // Sort tasks by priority (descending) and duration (descending)
+        unassignedTasks.sort((a, b) => {
+            if (b.priority !== a.priority) return b.priority - a.priority;
+            return b.duration - a.duration;
+        });
+        
+        // Get available members for each task
+        unassignedTasks.forEach(task => {
+            const availableMembers = this.getAvailableMembersForTask(task);
+            
+            if (availableMembers.length > 0) {
+                // Find the member with the least tasks and lowest stress
+                let bestMember = null;
+                let bestScore = Infinity;
+                
+                availableMembers.forEach(memberIndex => {
+                    const member = this.members[memberIndex];
+                    const currentTaskCount = this.tasks.filter(t => t.assignedTo === memberIndex).length;
+                    
+                    // Score: lower is better
+                    // Consider: number of tasks, stress level, fatigue level
+                    const score = currentTaskCount * 100 + member.stress * 20 + member.fatigue * 10;
+                    
+                    if (score < bestScore) {
+                        bestScore = score;
+                        bestMember = memberIndex;
+                    }
+                });
+                
+                if (bestMember !== null) {
+                    const taskIndex = this.tasks.indexOf(task);
+                    this.tasks[taskIndex].assignedTo = bestMember;
+                }
+            }
+        });
+        
+        this.saveData();
+        this.renderTasks();
+        alert(`Répartition terminée ! ${unassignedTasks.length} tâches ont été affectées.`);
+    }
+    
+    getAvailableMembersForTask(task) {
+        return this.members
+            .map((member, index) => ({ member, index }))
+            .filter(({ member }) => {
+                // Check if member is old enough
+                if (member.age < task.minAge) return false;
+                
+                // Check if member is available (not on vacation)
+                const today = new Date();
+                const dayOfWeek = today.getDay();
+                const memberStatus = member.schedule ? member.schedule[dayOfWeek] : 'Sur site';
+                
+                // Members on vacation or at school might not be available for certain tasks
+                if (memberStatus === 'En congés') return false;
+                if (memberStatus === "À l'école" && task.category === 'jardinage') return false;
+                
+                return true;
+            })
+            .map(({ index }) => index);
+    }
+    
     // ===== Data Management =====
     saveData() {
         localStorage.setItem('members', JSON.stringify(this.members));
@@ -1341,6 +1825,7 @@ class PlannificateurMaison {
         localStorage.setItem('meals', JSON.stringify(this.meals));
         localStorage.setItem('appointments', JSON.stringify(this.appointments));
         localStorage.setItem('medicationOrders', JSON.stringify(this.medicationOrders));
+        localStorage.setItem('tasks', JSON.stringify(this.tasks));
     }
     
     renderAllAdminData() {
@@ -1376,6 +1861,9 @@ class PlannificateurMaison {
                     <option value="${index}">${member.name}</option>
                 `).join('');
         }
+        
+        // Initialize task assigned to select
+        this.initializeTaskAssignedSelect();
     }
     
     closeAllForms() {
