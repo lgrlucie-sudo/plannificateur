@@ -67,7 +67,7 @@
                         </div>
                         <h3>Gestion des Tâches</h3>
                         <p>Organisez et suivez les tâches ménagères et autres activités quotidiennes.</p>
-                        <button class="btn-primary" disabled>Accéder aux tâches (bientôt)</button>
+                        <button class="btn-primary">Accéder aux tâches</button>
                     </div>
                     
                     <div class="feature-card" data-section="appointments">
@@ -76,7 +76,7 @@
                         </div>
                         <h3>Rendez-vous</h3>
                         <p>Gérez tous vos rendez-vous médicaux, professionnels ou personnels.</p>
-                        <button class="btn-primary" disabled>Voir les rendez-vous (bientôt)</button>
+                        <button class="btn-primary">Voir les rendez-vous</button>
                     </div>
                     
                     <div class="feature-card" data-section="schedule">
@@ -85,7 +85,7 @@
                         </div>
                         <h3>Agenda</h3>
                         <p>Visualisez votre emploi du temps jour par jour avec une vue calendrier.</p>
-                        <button class="btn-primary" disabled>Ouvrir l'agenda (bientôt)</button>
+                        <button class="btn-primary">Ouvrir l'agenda</button>
                     </div>
                     
                     <div class="feature-card" data-section="menus">
@@ -94,7 +94,7 @@
                         </div>
                         <h3>Menus de la Semaine</h3>
                         <p>Planifiez vos repas pour la semaine et générez des listes de courses.</p>
-                        <button class="btn-primary" disabled>Créer des menus (bientôt)</button>
+                        <button class="btn-primary">Créer des menus</button>
                     </div>
                     
                     <div class="feature-card" data-section="admin">
@@ -134,6 +134,100 @@
                 <div class="coming-soon">
                     <i class="fas fa-tools"></i>
                     <p>Les fonctionnalités seront implémentées progressivement</p>
+                </div>
+            </section>
+
+            <!-- Appointments Section -->
+            <section id="appointments" class="section">
+                <div class="section-header">
+                    <h2>Rendez-vous et Commandes de Médicaments</h2>
+                    <p class="subtitle">Gérez vos rendez-vous médicaux et commandes de médicaments</p>
+                </div>
+
+                <!-- Appointment Tabs -->
+                <div class="appointment-tabs">
+                    <button class="appointment-tab-btn active" data-tab="upcoming">
+                        <i class="fas fa-calendar-plus"></i>
+                        <span>À planifier</span>
+                    </button>
+                    <button class="appointment-tab-btn" data-tab="scheduled">
+                        <i class="fas fa-calendar-check"></i>
+                        <span>Rendez-vous pris</span>
+                    </button>
+                    <button class="appointment-tab-btn" data-tab="medications">
+                        <i class="fas fa-pills"></i>
+                        <span>Commandes médicaments</span>
+                    </button>
+                    <button class="appointment-tab-btn" data-tab="calendar">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Calendrier</span>
+                    </button>
+                </div>
+
+                <!-- Appointment Actions -->
+                <div class="appointment-actions">
+                    <button class="btn-primary" id="addAppointmentBtn">
+                        <i class="fas fa-plus"></i>
+                        Ajouter un rendez-vous à planifier
+                    </button>
+                    <button class="btn-primary" id="addScheduledAppointmentBtn">
+                        <i class="fas fa-plus"></i>
+                        Ajouter un rendez-vous pris
+                    </button>
+                    <button class="btn-primary" id="addMedicationOrderBtn">
+                        <i class="fas fa-plus"></i>
+                        Ajouter une commande de médicament
+                    </button>
+                    <div class="view-toggle">
+                        <label>
+                            <input type="checkbox" id="calendarViewToggle"> Vue Calendrier
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Tab Content -->
+                <div class="appointment-tab-content">
+                    <!-- Upcoming Appointments Tab -->
+                    <div id="upcoming" class="appointment-tab-pane active">
+                        <div class="appointments-list" id="upcomingAppointmentsList">
+                            <!-- Appointments to schedule will be added here -->
+                        </div>
+                    </div>
+
+                    <!-- Scheduled Appointments Tab -->
+                    <div id="scheduled" class="appointment-tab-pane">
+                        <div class="appointments-list" id="scheduledAppointmentsList">
+                            <!-- Scheduled appointments will be added here -->
+                        </div>
+                    </div>
+
+                    <!-- Medication Orders Tab -->
+                    <div id="medications" class="appointment-tab-pane">
+                        <div class="medication-orders-list" id="medicationOrdersList">
+                            <!-- Medication orders will be added here -->
+                        </div>
+                    </div>
+
+                    <!-- Calendar Tab -->
+                    <div id="calendar" class="appointment-tab-pane">
+                        <div class="calendar-container" id="calendarContainer">
+                            <div class="calendar-header">
+                                <button class="calendar-nav" id="prevMonth"><i class="fas fa-chevron-left"></i></button>
+                                <span class="calendar-title" id="calendarTitle">Calendrier</span>
+                                <button class="calendar-nav" id="nextMonth"><i class="fas fa-chevron-right"></i></button>
+                            </div>
+                            <div class="calendar-weekdays">
+                                <span>Lun</span>
+                                <span>Mar</span>
+                                <span>Mer</span>
+                                <span>Jeu</span>
+                                <span>Ven</span>
+                                <span>Sam</span>
+                                <span>Dim</span>
+                            </div>
+                            <div class="calendar-days" id="calendarDays"></div>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -337,6 +431,139 @@
             <div class="form-actions">
                 <button class="btn-secondary" onclick="app.closeAllForms()">Annuler</button>
                 <button class="btn-primary" onclick="app.saveMeal()">
+                    <i class="fas fa-save"></i> Enregistrer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Appointment Form Overlay -->
+    <div id="appointmentFormOverlay" class="form-overlay">
+        <div class="form-modal">
+            <div class="form-header">
+                <h3 id="appointmentFormTitle">Ajouter un rendez-vous à planifier</h3>
+                <button class="form-close"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="form-body">
+                <div class="form-group">
+                    <label for="appointmentTitle">Titre *</label>
+                    <input type="text" id="appointmentTitle" placeholder="Ex: Rendez-vous chez le dentiste">
+                </div>
+                <div class="form-group">
+                    <label for="appointmentLocation">Lieu</label>
+                    <input type="text" id="appointmentLocation" placeholder="Ex: Clinique Saint-Jean">
+                </div>
+                <div class="form-group">
+                    <label for="appointmentTargetMonth">Mois cible *</label>
+                    <select id="appointmentTargetMonth">
+                        <option value="">Sélectionnez un mois</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="appointmentReminder">Rappel (mois avant) *</label>
+                    <select id="appointmentReminder">
+                        <option value="">Sélectionnez une période de rappel</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Checklist pour le rendez-vous</label>
+                    <div id="appointmentChecklist" class="checklist-inputs"></div>
+                    <button class="btn-secondary" onclick="app.addChecklistItem('appointmentChecklist')" style="margin-top: 10px;">
+                        <i class="fas fa-plus"></i> Ajouter un élément
+                    </button>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="btn-secondary" onclick="app.closeAllForms()">Annuler</button>
+                <button class="btn-primary" onclick="app.saveAppointment()">
+                    <i class="fas fa-save"></i> Enregistrer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scheduled Appointment Form Overlay -->
+    <div id="scheduledAppointmentFormOverlay" class="form-overlay">
+        <div class="form-modal">
+            <div class="form-header">
+                <h3 id="scheduledAppointmentFormTitle">Ajouter un rendez-vous pris</h3>
+                <button class="form-close"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="form-body">
+                <div class="form-group">
+                    <label for="scheduledTitle">Titre *</label>
+                    <input type="text" id="scheduledTitle" placeholder="Ex: Rendez-vous chez le médecin">
+                </div>
+                <div class="form-group">
+                    <label for="scheduledLocation">Lieu</label>
+                    <input type="text" id="scheduledLocation" placeholder="Ex: Hôpital Central">
+                </div>
+                <div class="form-group">
+                    <label for="scheduledDate">Date *</label>
+                    <input type="date" id="scheduledDate">
+                </div>
+                <div class="form-group">
+                    <label for="scheduledTime">Heure</label>
+                    <input type="time" id="scheduledTime">
+                </div>
+                <div class="form-group">
+                    <label>Checklist pour le rendez-vous</label>
+                    <div id="scheduledChecklist" class="checklist-inputs"></div>
+                    <button class="btn-secondary" onclick="app.addChecklistItem('scheduledChecklist')" style="margin-top: 10px;">
+                        <i class="fas fa-plus"></i> Ajouter un élément
+                    </button>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="btn-secondary" onclick="app.closeAllForms()">Annuler</button>
+                <button class="btn-primary" onclick="app.saveScheduledAppointment()">
+                    <i class="fas fa-save"></i> Enregistrer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Medication Order Form Overlay -->
+    <div id="medicationOrderFormOverlay" class="form-overlay">
+        <div class="form-modal">
+            <div class="form-header">
+                <h3 id="medicationOrderFormTitle">Ajouter une commande de médicament</h3>
+                <button class="form-close"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="form-body">
+                <div class="form-group">
+                    <label for="medicationName">Nom du médicament *</label>
+                    <input type="text" id="medicationName" placeholder="Ex: Paracétamol 500mg">
+                </div>
+                <div class="form-group">
+                    <label for="medicationPerson">Personne concernée *</label>
+                    <select id="medicationPerson">
+                        <option value="">Sélectionnez une personne</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="medicationFrequency">Fréquence de commande *</label>
+                    <select id="medicationFrequency">
+                        <option value="">Sélectionnez une fréquence</option>
+                        <option value="1">Tous les mois</option>
+                        <option value="2">Tous les 2 mois</option>
+                        <option value="3">Tous les 3 mois</option>
+                        <option value="6">Tous les 6 mois</option>
+                        <option value="12">Tous les ans</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="medicationStartDate">Date de début</label>
+                    <input type="date" id="medicationStartDate">
+                </div>
+                <div class="form-group">
+                    <label for="medicationNotes">Notes</label>
+                    <textarea id="medicationNotes" placeholder="Notes supplémentaires sur la commande"></textarea>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="btn-secondary" onclick="app.closeAllForms()">Annuler</button>
+                <button class="btn-primary" onclick="app.saveMedicationOrder()">
                     <i class="fas fa-save"></i> Enregistrer
                 </button>
             </div>

@@ -543,6 +543,406 @@ body {
     background: var(--border-color);
 }
 
+/* ===== Appointments Section Styles ===== */
+.appointment-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--border-color);
+    flex-wrap: wrap;
+}
+
+.appointment-tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition);
+    border-bottom: 3px solid transparent;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.appointment-tab-btn i {
+    font-size: 1rem;
+}
+
+.appointment-tab-btn:hover {
+    color: var(--primary-color);
+    background-color: var(--bg-tertiary);
+}
+
+.appointment-tab-btn.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+}
+
+.appointment-tab-content {
+    min-height: 400px;
+}
+
+.appointment-tab-pane {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.appointment-tab-pane.active {
+    display: block;
+}
+
+.appointment-actions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.appointment-actions .btn-primary {
+    margin-bottom: 10px;
+}
+
+.view-toggle {
+    margin-left: auto;
+}
+
+.view-toggle label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.view-toggle input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+/* Appointments List */
+.appointments-list, .medication-orders-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.appointment-card {
+    background-color: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: 20px;
+    transition: var(--transition);
+    border-left: 4px solid var(--primary-color);
+}
+
+.appointment-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+}
+
+.appointment-card.upcoming {
+    border-left-color: var(--warning-color);
+}
+
+.appointment-card.scheduled {
+    border-left-color: var(--success-color);
+}
+
+.appointment-card.medication {
+    border-left-color: var(--danger-color);
+}
+
+.appointment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.appointment-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 5px;
+}
+
+.appointment-meta {
+    display: flex;
+    gap: 10px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    flex-wrap: wrap;
+}
+
+.appointment-meta span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.appointment-meta i {
+    color: var(--primary-color);
+}
+
+.appointment-date {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.appointment-checklist {
+    margin-top: 15px;
+}
+
+.appointment-checklist h4 {
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+}
+
+.checklist-items {
+    list-style: none;
+    padding: 0;
+}
+
+.checklist-items li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--bg-tertiary);
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.checklist-items li:last-child {
+    border-bottom: none;
+}
+
+.checklist-items input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.checklist-items label {
+    flex: 1;
+    cursor: pointer;
+}
+
+.checklist-items .check-icon {
+    color: var(--success-color);
+    font-size: 0.9rem;
+}
+
+/* Medication Order Card */
+.medication-card {
+    background-color: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: 20px;
+    transition: var(--transition);
+    border-left: 4px solid var(--danger-color);
+}
+
+.medication-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+}
+
+.medication-name {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--danger-color);
+    margin-bottom: 10px;
+}
+
+.medication-info {
+    display: grid;
+    gap: 8px;
+}
+
+.medication-info-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.medication-info-item i {
+    color: var(--danger-color);
+}
+
+.medication-frequency {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* Calendar Styles */
+.calendar-container {
+    background-color: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.calendar-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.calendar-nav {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 8px;
+    transition: var(--transition);
+    border-radius: var(--radius-sm);
+}
+
+.calendar-nav:hover {
+    background-color: var(--bg-tertiary);
+}
+
+.calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    margin-bottom: 10px;
+    text-align: center;
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+}
+
+.calendar-day {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 8px 5px;
+    background-color: var(--bg-secondary);
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: var(--transition);
+    border: 2px solid transparent;
+}
+
+.calendar-day:hover {
+    background-color: var(--bg-tertiary);
+    border-color: var(--primary-color);
+}
+
+.calendar-day.empty {
+    background-color: transparent;
+    cursor: default;
+}
+
+.calendar-day.has-appointment {
+    background-color: #E3F2FD;
+    font-weight: 600;
+}
+
+.calendar-day.has-medication {
+    background-color: #FFEBEE;
+    font-weight: 600;
+}
+
+.calendar-day.today {
+    border-color: var(--primary-color);
+    background-color: var(--primary-color);
+    color: var(--text-white);
+}
+
+.calendar-day-appointments {
+    margin-top: auto;
+    display: flex;
+    gap: 2px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.calendar-day-appointments span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+}
+
+.calendar-day-appointments span.medication {
+    background-color: var(--danger-color);
+}
+
+/* Checklist Inputs */
+.checklist-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.checklist-input-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.checklist-input-row input[type="text"] {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+}
+
+.checklist-input-row input[type="text"]:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.2);
+}
+
+.checklist-input-row .remove-item {
+    background: none;
+    border: none;
+    color: var(--danger-color);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 5px;
+    transition: var(--transition);
+}
+
+.checklist-input-row .remove-item:hover {
+    color: #c00;
+}
+
 /* ===== Admin Section Styles ===== */
 .admin-tabs {
     display: flex;
