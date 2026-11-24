@@ -12,6 +12,17 @@ class PlannificateurMaison {
         this.meals = JSON.parse(localStorage.getItem('meals')) || [];
         this.appointments = JSON.parse(localStorage.getItem('appointments')) || [];
         this.medicationOrders = JSON.parse(localStorage.getItem('medicationOrders')) || [];
+        this.foods = JSON.parse(localStorage.getItem('foods')) || [];
+        
+        // Food stock constants
+        this.foodTypes = ['Fruits', 'L\u00e9gumes', 'F\u00e9culents', 'L\u00e9gumes secs', 'Produits laitiers', 'Viandes', 'Poissons', 'Mati\u00e8res grasses', '\u00c9piceries sucr\u00e9es', '\u00c9piceries sal\u00e9es', 'Soda', 'Alcool', 'Restes'];
+        this.storageLocations = ['R\u00e9frig\u00e9rateur', 'Cong\u00e9lateur', 'Placard'];
+        this.storageIcons = {
+            'R\u00e9frig\u00e9rateur': 'fa-temperature-arrow-down',
+            'Cong\u00e9lateur': 'fa-snowflake',
+            'Placard': 'fa-warehouse'
+        };
+        this.stockFilters = { search: '', type: '', storage: '', expiry: 'all' };
         
         // Current editing item
         this.currentEditIndex = null;
@@ -35,6 +46,7 @@ class PlannificateurMaison {
         this.setupEventListeners();
         this.showSection(this.currentSection);
         this.renderAllAdminData();
+        this.renderStock();
         this.initializeAppointmentForms();
         
         // Set current date for calendar
@@ -120,6 +132,44 @@ class PlannificateurMaison {
         
         document.getElementById('addMedicationOrderBtn')?.addEventListener('click', () => {
             this.openMedicationOrderForm();
+        });
+        
+        // Stock section
+        document.getElementById('addFoodBtn')?.addEventListener('click', () => {
+            this.openFoodForm();
+        });
+        
+        document.getElementById('exportStockBtn')?.addEventListener('click', () => {
+            this.exportStockToCsv();
+        });
+        
+        document.getElementById('stockSearch')?.addEventListener('input', (e) => {
+            this.stockFilters.search = e.target.value.toLowerCase();
+            this.renderStock();
+        });
+        
+        document.getElementById('stockFilterType')?.addEventListener('change', (e) => {
+            this.stockFilters.type = e.target.value;
+            this.renderStock();
+        });
+        
+        document.getElementById('stockFilterStorage')?.addEventListener('change', (e) => {
+            this.stockFilters.storage = e.target.value;
+            this.renderStock();
+        });
+        
+        document.getElementById('stockFilterExpiry')?.addEventListener('change', (e) => {
+            this.stockFilters.expiry = e.target.value;
+            this.renderStock();
+        });
+        
+        document.getElementById('resetStockFilters')?.addEventListener('click', () => {
+            this.stockFilters = { search: '', type: '', storage: '', expiry: 'all' };
+            document.getElementById('stockSearch').value = '';
+            document.getElementById('stockFilterType').value = '';
+            document.getElementById('stockFilterStorage').value = '';
+            document.getElementById('stockFilterExpiry').value = 'all';
+            this.renderStock();
         });
         
         // Calendar navigation
@@ -1334,6 +1384,253 @@ class PlannificateurMaison {
         this.renderCalendar();
     }
     
+    // ===== Food Stock Management =====
+    openFoodForm(food = null, index = null) {
+        const overlay = document.getElementById('foodFormOverlay');
+        
+        if (food) {
+            // Edit mode
+            this.currentEditIndex = index;
+            this.currentEditType = 'food';
+            document.getElementById('foodFormTitle').textContent = 'Modifier l\u2019aliment';
+            document.getElementById('foodName').value = food.name || '';
+            document.getElementById('foodType').value = food.type || '';
+            document.getElementById('foodStorage').value = food.storage || '';
+            document.getElementById('foodQuantity').value = food.quantity ?? '';
+            document.getElementById('foodUnit').value = food.unit || '';
+            document.getElementById('foodExpiry').value = food.expiryDate || '';
+        } else {
+            // Add mode
+            this.currentEditIndex = null;
+            this.currentEditType = null;
+            document.getElementById('foodFormTitle').textContent = 'Ajouter un aliment';
+            document.getElementById('foodName').value = '';
+            document.getElementById('foodType').value = '';
+            document.getElementById('foodStorage').value = '';
+            document.getElementById('foodQuantity').value = '';
+            document.getElementById('foodUnit').value = '';
+            document.getElementById('foodExpiry').value = '';
+        }
+        
+        overlay.classList.add('active');
+    }
+    
+    saveFood() {
+        const name = document.getElementById('foodName').value.trim();
+        const type = document.getElementById('foodType').value;
+        const storage = document.getElementById('foodStorage').value;
+        const quantity = document.getElementById('foodQuantity').value;
+        const unit = document.getElementById('foodUnit').value.trim();
+        const expiryDate = document.getElementById('foodExpiry').value;
+        
+        if (!name) {
+            alert('Veuillez entrer le nom de l\u2019aliment');
+            return;
+        }
+        if (!type) {
+            alert('Veuillez s\u00e9lectionner un type');
+            return;
+        }
+        if (!storage) {
+            alert('Veuillez s\u00e9lectionner un lieu de rangement');
+            return;
+        }
+        if (quantity === '' || Number(quantity) < 0) {
+            alert('Veuillez entrer une quantit\u00e9 valide');
+            return;
+        }
+        
+        const food = { name, type, storage, quantity: Number(quantity), unit, expiryDate };
+        
+        if (this.currentEditIndex !== null && this.currentEditType === 'food') {
+            this.foods[this.currentEditIndex] = food;
+        } else {
+            this.foods.push(food);
+        }
+        
+        this.saveData();
+        this.closeAllForms();
+        this.renderStock();
+    }
+    
+    editFood(index) {
+        this.openFoodForm(this.foods[index], index);
+    }
+    
+    deleteFood(index) {
+        if (confirm('\u00cates-vous s\u00fbr de vouloir supprimer cet aliment ?')) {
+            this.foods.splice(index, 1);
+            this.saveData();
+            this.renderStock();
+        }
+    }
+    
+    getExpiryInfo(food) {
+        if (!food.expiryDate) {
+            return { status: 'none', label: 'Pas de date', daysLeft: null };
+        }
+        
+        const [year, month, day] = food.expiryDate.split('-').map(Number);
+        const expiry = new Date(year, month - 1, day);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const daysLeft = Math.round((expiry - today) / (1000 * 60 * 60 * 24));
+        
+        if (daysLeft < 0) {
+            return { status: 'expired', label: `P\u00e9rim\u00e9 depuis ${Math.abs(daysLeft)} j`, daysLeft };
+        }
+        if (daysLeft <= 7) {
+            const label = daysLeft === 0 ? 'A manger aujourd\u2019hui' : `${daysLeft} j restants`;
+            return { status: 'soon', label, daysLeft };
+        }
+        return { status: 'ok', label: this.formatDate(food.expiryDate), daysLeft };
+    }
+    
+    getFilteredFoods() {
+        const { search, type, storage, expiry } = this.stockFilters;
+        
+        return this.foods.map((food, index) => ({ food, index })).filter(({ food }) => {
+            if (search && !food.name.toLowerCase().includes(search)) return false;
+            if (type && food.type !== type) return false;
+            if (storage && food.storage !== storage) return false;
+            if (expiry !== 'all') {
+                const info = this.getExpiryInfo(food);
+                if (info.status !== expiry) return false;
+            }
+            return true;
+        });
+    }
+    
+    renderStock() {
+        const container = document.getElementById('foodGroups');
+        const summary = document.getElementById('foodSummary');
+        if (!container) return;
+        
+        const filtered = this.getFilteredFoods();
+        
+        if (this.foods.length === 0) {
+            summary.innerHTML = '';
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-boxes-stacked"></i>
+                    <p>Aucun aliment dans votre stock.<br>Cliquez sur "Ajouter un aliment" pour commencer.</p>
+                </div>
+            `;
+            return;
+        }
+        
+        const expiredCount = this.foods.filter(f => this.getExpiryInfo(f).status === 'expired').length;
+        const soonCount = this.foods.filter(f => this.getExpiryInfo(f).status === 'soon').length;
+        const filteredCount = filtered.length;
+        
+        summary.innerHTML = `
+            <span class="food-chip"><i class="fas fa-box"></i> ${this.foods.length} aliment${this.foods.length > 1 ? 's' : ''}</span>
+            ${filteredCount !== this.foods.length ? `<span class="food-chip neutral"><i class="fas fa-filter"></i> ${filteredCount} affich\u00e9${filteredCount > 1 ? 's' : ''}</span>` : ''}
+            ${soonCount > 0 ? `<span class="food-chip warning"><i class="fas fa-clock"></i> ${soonCount} \u00e0 consommer vite</span>` : ''}
+            ${expiredCount > 0 ? `<span class="food-chip danger"><i class="fas fa-triangle-exclamation"></i> ${expiredCount} p\u00e9rim\u00e9${expiredCount > 1 ? 's' : ''}</span>` : ''}
+        `;
+        
+        if (filtered.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-filter"></i>
+                    <p>Aucun aliment ne correspond aux filtres s\u00e9lectionn\u00e9s.</p>
+                </div>
+            `;
+            return;
+        }
+        
+        container.innerHTML = this.storageLocations.map(location => {
+            const items = filtered.filter(({ food }) => food.storage === location);
+            if (items.length === 0) return '';
+            
+            const groupClass = location === 'R\u00e9frig\u00e9rateur' ? 'fridge' : location === 'Cong\u00e9lateur' ? 'freezer' : 'cupboard';
+            
+            return `
+                <div class="food-group ${groupClass}">
+                    <div class="food-group-header">
+                        <i class="fas ${this.storageIcons[location]}"></i>
+                        <span>${location}</span>
+                        <span class="food-group-count">${items.length}</span>
+                    </div>
+                    <div class="food-group-body">
+                        ${items.map(({ food, index }) => this.renderFoodCard(food, index)).join('')}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+    
+    renderFoodCard(food, index) {
+        const expiry = this.getExpiryInfo(food);
+        const quantity = `${food.quantity}${food.unit ? ' ' + food.unit : ''}`;
+        
+        return `
+            <div class="food-card priority-${expiry.status}">
+                <div class="food-header">
+                    <span class="food-name">${food.name}</span>
+                    <span class="food-type-tag">${food.type}</span>
+                </div>
+                <div class="food-info">
+                    <div class="info-item">
+                        <i class="fas fa-scale-balanced"></i>
+                        <span><strong>Quantit\u00e9 :</strong> ${quantity}</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-calendar-day"></i>
+                        ${food.expiryDate ? `<span><strong>P\u00e9remption :</strong> ${this.formatDate(food.expiryDate)}</span>` : '<span><strong>P\u00e9remption :</strong> non renseign\u00e9e</span>'}
+                    </div>
+                </div>
+                <div class="card-actions">
+                    <span class="expiry-badge expiry-${expiry.status}">${expiry.label}</span>
+                    <span class="action-buttons">
+                        <button class="btn-edit" onclick="app.editFood(${index})">
+                            <i class="fas fa-pen"></i>
+                        </button>
+                        <button class="btn-delete" onclick="app.deleteFood(${index})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </span>
+                </div>
+            </div>
+        `;
+    }
+    
+    formatDate(isoDate) {
+        const [year, month, day] = isoDate.split('-').map(Number);
+        return `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`;
+    }
+    
+    exportStockToCsv() {
+        if (this.foods.length === 0) {
+            alert('Votre stock est vide, rien \u00e0 exporter.');
+            return;
+        }
+        
+        const filtered = this.getFilteredFoods();
+        const header = ['Aliment', 'Type', 'Lieu de rangement', 'Quantit\u00e9', 'Mesure', 'Date de p\u00e9remption'];
+        const escapeCell = (value) => {
+            const str = String(value ?? '');
+            return /[";\n]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str;
+        };
+        const rows = filtered.map(({ food }) => {
+            const expiry = food.expiryDate ? this.formatDate(food.expiryDate) : '';
+            return [food.name, food.type, food.storage, food.quantity, food.unit, expiry].map(escapeCell).join(';');
+        });
+        const csv = '\ufeff' + [header.join(';'), ...rows].join('\r\n');
+        
+        const date = new Date();
+        const fileName = `stock-aliments-${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}.csv`;
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+    }
+    
     // ===== Data Management =====
     saveData() {
         localStorage.setItem('members', JSON.stringify(this.members));
@@ -1341,6 +1638,7 @@ class PlannificateurMaison {
         localStorage.setItem('meals', JSON.stringify(this.meals));
         localStorage.setItem('appointments', JSON.stringify(this.appointments));
         localStorage.setItem('medicationOrders', JSON.stringify(this.medicationOrders));
+        localStorage.setItem('foods', JSON.stringify(this.foods));
     }
     
     renderAllAdminData() {

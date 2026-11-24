@@ -45,6 +45,10 @@
                 <i class="fas fa-utensils"></i>
                 <span>Menus</span>
             </button>
+            <button class="nav-btn" data-section="stock">
+                <i class="fas fa-boxes-stacked"></i>
+                <span>Stock</span>
+            </button>
             <button class="nav-btn" data-section="admin">
                 <i class="fas fa-cog"></i>
                 <span>Admin</span>
@@ -95,6 +99,15 @@
                         <h3>Menus de la Semaine</h3>
                         <p>Planifiez vos repas pour la semaine et générez des listes de courses.</p>
                         <button class="btn-primary">Créer des menus</button>
+                    </div>
+                    
+                    <div class="feature-card" data-section="stock">
+                        <div class="card-icon stock">
+                            <i class="fas fa-apple-whole"></i>
+                        </div>
+                        <h3>Stock Alimentaire</h3>
+                        <p>Consultez vos aliments par lieu de rangement et suivez les dates de péremption.</p>
+                        <button class="btn-primary">Voir le stock</button>
                     </div>
                     
                     <div class="feature-card" data-section="admin">
@@ -229,6 +242,65 @@
                         </div>
                     </div>
                 </div>
+            </section>
+
+            <!-- Stock Section -->
+            <section id="stock" class="section">
+                <div class="section-header">
+                    <h2>Stock Alimentaire</h2>
+                    <p class="subtitle">Tout ce qu'il y a à la maison, rangé par lieu de conservation</p>
+                </div>
+
+                <div class="appointment-actions">
+                    <div class="filter-bar">
+                        <div class="filter-search">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="stockSearch" placeholder="Rechercher un aliment...">
+                        </div>
+                        <select id="stockFilterType">
+                            <option value="">Tous les types</option>
+                            <option value="Fruits">Fruits</option>
+                            <option value="Légumes">Légumes</option>
+                            <option value="Féculents">Féculents</option>
+                            <option value="Légumes secs">Légumes secs</option>
+                            <option value="Produits laitiers">Produits laitiers</option>
+                            <option value="Viandes">Viandes</option>
+                            <option value="Poissons">Poissons</option>
+                            <option value="Matières grasses">Matières grasses</option>
+                            <option value="Épiceries sucrées">Épiceries sucrées</option>
+                            <option value="Épiceries salées">Épiceries salées</option>
+                            <option value="Soda">Soda</option>
+                            <option value="Alcool">Alcool</option>
+                            <option value="Restes">Restes</option>
+                        </select>
+                        <select id="stockFilterStorage">
+                            <option value="">Tous les rangements</option>
+                            <option value="Réfrigérateur">Réfrigérateur</option>
+                            <option value="Congélateur">Congélateur</option>
+                            <option value="Placard">Placard</option>
+                        </select>
+                        <select id="stockFilterExpiry">
+                            <option value="all">Toutes les péremptions</option>
+                            <option value="soon">Bientôt périmés (7 jours)</option>
+                            <option value="expired">Déjà périmés</option>
+                            <option value="none">Sans date de péremption</option>
+                        </select>
+                        <button class="btn-secondary" id="resetStockFilters">
+                            <i class="fas fa-rotate-left"></i>
+                        </button>
+                    </div>
+                    <div class="toolbar-buttons">
+                        <button class="btn-secondary" id="exportStockBtn">
+                            <i class="fas fa-file-excel"></i> Exporter en Excel
+                        </button>
+                        <button class="btn-primary" id="addFoodBtn">
+                            <i class="fas fa-plus"></i> Ajouter un aliment
+                        </button>
+                    </div>
+                </div>
+
+                <div class="food-summary" id="foodSummary"></div>
+                <div class="food-groups" id="foodGroups"></div>
             </section>
 
             <!-- Admin Section -->
@@ -564,6 +636,83 @@
             <div class="form-actions">
                 <button class="btn-secondary" onclick="app.closeAllForms()">Annuler</button>
                 <button class="btn-primary" onclick="app.saveMedicationOrder()">
+                    <i class="fas fa-save"></i> Enregistrer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Food Form Overlay -->
+    <div id="foodFormOverlay" class="form-overlay">
+        <div class="form-modal">
+            <div class="form-header">
+                <h3 id="foodFormTitle">Ajouter un aliment</h3>
+                <button class="form-close"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="form-body">
+                <div class="form-group">
+                    <label for="foodName">Nom de l'aliment *</label>
+                    <input type="text" id="foodName" placeholder="Ex : Yaourt nature">
+                </div>
+                <div class="form-group">
+                    <label for="foodType">Type *</label>
+                    <select id="foodType">
+                        <option value="">Sélectionnez un type</option>
+                        <option value="Fruits">Fruits</option>
+                        <option value="Légumes">Légumes</option>
+                        <option value="Féculents">Féculents</option>
+                        <option value="Légumes secs">Légumes secs</option>
+                        <option value="Produits laitiers">Produits laitiers</option>
+                        <option value="Viandes">Viandes</option>
+                        <option value="Poissons">Poissons</option>
+                        <option value="Matières grasses">Matières grasses</option>
+                        <option value="Épiceries sucrées">Épiceries sucrées</option>
+                        <option value="Épiceries salées">Épiceries salées</option>
+                        <option value="Soda">Soda</option>
+                        <option value="Alcool">Alcool</option>
+                        <option value="Restes">Restes</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="foodStorage">Lieu de rangement *</label>
+                    <select id="foodStorage">
+                        <option value="">Sélectionnez un lieu</option>
+                        <option value="Réfrigérateur">Réfrigérateur</option>
+                        <option value="Congélateur">Congélateur</option>
+                        <option value="Placard">Placard</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="foodQuantity">Quantité *</label>
+                        <input type="number" id="foodQuantity" min="0" step="any" placeholder="Ex : 500">
+                    </div>
+                    <div class="form-group">
+                        <label for="foodUnit">Mesure</label>
+                        <input type="text" id="foodUnit" list="foodUnitList" placeholder="Ex : g, kg, L, pièce(s)">
+                        <datalist id="foodUnitList">
+                            <option value="g">
+                            <option value="kg">
+                            <option value="mL">
+                            <option value="cL">
+                            <option value="L">
+                            <option value="pièce(s)">
+                            <option value="boîte(s)">
+                            <option value="paquet(s)">
+                            <option value="brique(s)">
+                            <option value="bouteille(s)">
+                            <option value="barquette(s)">
+                        </datalist>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="foodExpiry">Date de péremption</label>
+                    <input type="date" id="foodExpiry">
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="btn-secondary" onclick="app.closeAllForms()">Annuler</button>
+                <button class="btn-primary" onclick="app.saveFood()">
                     <i class="fas fa-save"></i> Enregistrer
                 </button>
             </div>
