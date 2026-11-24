@@ -1582,6 +1582,35 @@ input:read-only {
     font-size: 0.85rem;
 }
 
+.food-group-add {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.18);
+    color: var(--text-white);
+    font-family: var(--font-primary);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.food-group-add:hover {
+    background: rgba(255, 255, 255, 0.32);
+    transform: translateY(-1px);
+}
+
+.food-group-count {
+    margin-left: auto;
+    background: rgba(255, 255, 255, 0.25);
+    padding: 2px 12px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+}
+
 .food-group-body {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));

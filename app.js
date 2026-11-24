@@ -1385,7 +1385,7 @@ class PlannificateurMaison {
     }
     
     // ===== Food Stock Management =====
-    openFoodForm(food = null, index = null) {
+    openFoodForm(food = null, index = null, defaultStorage = '') {
         const overlay = document.getElementById('foodFormOverlay');
         
         if (food) {
@@ -1406,7 +1406,7 @@ class PlannificateurMaison {
             document.getElementById('foodFormTitle').textContent = 'Ajouter un aliment';
             document.getElementById('foodName').value = '';
             document.getElementById('foodType').value = '';
-            document.getElementById('foodStorage').value = '';
+            document.getElementById('foodStorage').value = defaultStorage;
             document.getElementById('foodQuantity').value = '';
             document.getElementById('foodUnit').value = '';
             document.getElementById('foodExpiry').value = '';
@@ -1552,6 +1552,9 @@ class PlannificateurMaison {
                         <i class="fas ${this.storageIcons[location]}"></i>
                         <span>${location}</span>
                         <span class="food-group-count">${items.length}</span>
+                        <button class="food-group-add" onclick="app.openFoodForm(null, null, '${location}')" title="Ajouter un aliment dans ${location}">
+                            <i class="fas fa-plus"></i> Ajouter
+                        </button>
                     </div>
                     <div class="food-group-body">
                         ${items.map(({ food, index }) => this.renderFoodCard(food, index)).join('')}
